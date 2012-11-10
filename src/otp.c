@@ -51,6 +51,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   /* Check Pub_ID */
   if (memcmp(data->pubid, otp, OTP_PUB_ID_HEX_LEN)) {
     DBG("No corresponding Public ID")
+    free(data);
     return OTP_ERR;
   }
 
@@ -58,6 +59,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   key = aes_init(data->key);
   if (key == NULL) {
     DBG("Unable to initialize AES sub-system")
+    free(data);
     return OTP_ERR;
   }
 
@@ -65,13 +67,16 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   otp_dec = extract_otp(otp + OTP_PUB_ID_HEX_LEN, key);
   if (otp_dec == NULL) {
     DBG("Decryption error")
+    free(data);
     return OTP_ERR;
   }
 
   /* Verify Priv_id */
   priv_id = hex2bin(data->privid, OTP_PRIVID_HEX_LEN);
+  free(data);
   if (memcmp(priv_id, otp_dec->private_id, OTP_PRIVID_BIN_LEN)) {
     DBG("Bad Private ID")
+    free(otp_dec);
     free(priv_id);
     return OTP_ERR;
   }
@@ -80,6 +85,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   /* Verify CRC16 */
   if(crc16((uint8_t*) otp_dec, OTP_BIN_LEN) != OTP_CRC) {
     DBG("Bad CRC")
+    free(otp_dec);
     return OTP_ERR;
   }
 
@@ -101,11 +107,13 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
           if (ret == OTP_SQL_OK) {
             aes_clean(key);
             sql_close(db);
+            free(otp_dec);
             return OTP_OK;
           } else if (ret == OTP_SQL_ERR) {
             DBG("SQL error")
             aes_clean(key);
             sql_close(db);
+            free(otp_dec);
             return OTP_ERR;
           }
         } else {
@@ -113,6 +121,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
           rollback(db);
           aes_clean(key);
           sql_close(db);
+          free(otp_dec);
           return OTP_ERR;
         }
         break;
@@ -120,10 +129,13 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
         DBG("SQL error")
         aes_clean(key);
         sql_close(db);
+        free(otp_dec);
         return OTP_ERR;
       case OTP_SQL_MAY_RETRY:
         break;
     }
   }
+
+  free(otp_dec);
   return OTP_ERR;
 }
