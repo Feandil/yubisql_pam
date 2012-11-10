@@ -106,7 +106,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
             break;
           case OTP_SQL_ERR:
             DBG("SQL error when trying to get the credentials")
-            goto rollback;
+            goto free_otp_dec;
           case OTP_SQL_OK:
             /* Verify that the OTP is new */
             if ((store.session_counter < otp_dec->session_counter)
@@ -121,7 +121,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
                   break;
                 case OTP_SQL_ERR:
                   DBG("SQL error when trying to get the credentials")
-                  goto rollback;
+                  goto free_otp_dec;
                 case OTP_SQL_OK:
                   /* Close the transaction */
                   ret = try_end_transaction(db);
@@ -130,7 +130,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
                       break;
                     case OTP_SQL_ERR:
                       DBG("SQL error when trying to commit the transaction")
-                      goto rollback;
+                      goto free_otp_dec;
                     case OTP_SQL_OK:
                       free(otp_dec);
                       sql_close(db);
@@ -145,7 +145,6 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
         }
       }
     }
-    rollback(db);
   }
   goto free_otp_dec;
 
