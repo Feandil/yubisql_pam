@@ -7,7 +7,7 @@
 #define MAX_RETRIES 3
 
 #ifndef DBG
-#define DBG(x) printf("%s\n", x);
+#define DBG(x) if (debug) printf("%s\n", x);
 #endif
 
 int
