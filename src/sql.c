@@ -5,9 +5,9 @@
 #include "sql.h"
 
 /* Define queries */
-static const char yubisql_select_data[] = "SELECT publicid,privateid,key,digest FROM mapping WHERE username = ?;\n";
-static const char yubisql_select_state[] = "SELECT session,timecode,tokencount FROM mapping WHERE username = ?;\n";
-static const char yubisql_update_state[] = "UPDATE mapping SET session = ?, timecode = ?, tokencount = ? WHERE username = ?;\n";
+static const char yubisql_select_data[] = "SELECT publicid,privateid,key,digest FROM mapping WHERE username = ?;";
+static const char yubisql_select_state[] = "SELECT session,timecode,tokencount FROM mapping WHERE username = ?;";
+static const char yubisql_update_state[] = "UPDATE mapping SET session = ?, timecode = ?, tokencount = ? WHERE username = ?;";
 
 /* Transactions */
 static const char yubisql_begin[] = "BEGIN IMMEDIATE;";
@@ -38,7 +38,7 @@ int try_start_transaction(sqlite3* db)
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the request */
-  response = sqlite3_prepare_v2(db, yubisql_begin, sizeof(yubisql_begin) - 1, &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_begin, sizeof(yubisql_begin), &ppStmt, NULL);
   if (response != SQLITE_OK) {
     /* Should never ever happen */
     sqlite3_finalize(ppStmt);
@@ -58,19 +58,10 @@ int try_start_transaction(sqlite3* db)
   }
 }
 
-int try_end_transaction(sqlite3* db)
+static int
+try_or_rollback(sqlite3* db, sqlite3_stmt *ppStmt)
 {
   int response;
-  sqlite3_stmt *ppStmt = NULL;
-
-  /* Prepare the request */
-  response = sqlite3_prepare_v2(db, yubisql_end, sizeof(yubisql_end) - 1, &ppStmt, NULL);
-  if (response != SQLITE_OK) {
-    /* Should never ever happen */
-    sqlite3_finalize(ppStmt);
-    rollback(db);
-    return OTP_SQL_ERR;
-  }
 
   /* Run and verify response */
   response = sqlite3_step(ppStmt);
@@ -85,6 +76,26 @@ int try_end_transaction(sqlite3* db)
       rollback(db);
       return OTP_SQL_ERR;
   }
+}
+
+#define compile_or_rollback(db,ppStmt,response) \
+  if (response != SQLITE_OK) {                  \
+    /* Should never ever happen */              \
+    sqlite3_finalize(ppStmt);                   \
+    rollback(db);                               \
+    return OTP_SQL_ERR;                         \
+  }
+
+int try_end_transaction(sqlite3* db)
+{
+  int response;
+  sqlite3_stmt *ppStmt = NULL;
+
+  /* Prepare the request */
+  response = sqlite3_prepare_v2(db, yubisql_end, sizeof(yubisql_end) - 1, &ppStmt, NULL);
+  compile_or_rollback(db,ppStmt,response)
+
+  return try_or_rollback(db, ppStmt);
 }
 
 static void
@@ -201,15 +212,9 @@ try_get_credentials(sqlite3* db, struct otp_state* store, const struct user* use
 
   /* Prepare the request ! */
   response = sqlite3_prepare_v2(db, yubisql_select_state, sizeof(yubisql_select_state), &ppStmt, NULL);
-  if (response != SQLITE_OK) {
-    sqlite3_finalize(ppStmt);
-    return OTP_SQL_ERR;
-  }
+  compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_text(ppStmt, 1, user->name, (int)user->len, SQLITE_STATIC);
-  if (response != SQLITE_OK) {
-    sqlite3_finalize(ppStmt);
-    return OTP_SQL_ERR;
-  }
+  compile_or_rollback(db,ppStmt,response)
 
   /* Run and verify response */
   response = sqlite3_step(ppStmt);
@@ -238,19 +243,7 @@ try_get_credentials(sqlite3* db, struct otp_state* store, const struct user* use
   store->timecode = (unsigned int) sqlite3_column_int(ppStmt, 1);
   store->token_count = (unsigned char) sqlite3_column_int(ppStmt, 2);
 
-  /* Verify that it's the only response */
-  response = sqlite3_step(ppStmt);
-  sqlite3_finalize(ppStmt);
-  switch (response) {
-    case SQLITE_DONE:
-      return OTP_SQL_OK;
-    case SQLITE_BUSY:
-      rollback(db);
-      return OTP_SQL_MAY_RETRY;
-    default:
-      rollback(db);
-      return OTP_SQL_ERR;
-  }
+  return try_or_rollback(db, ppStmt);
 }
 
 int
@@ -261,45 +254,18 @@ try_update_credentials(sqlite3* db, const struct otp_state* otp, const struct us
 
   /* Prepare the request ! */
   response = sqlite3_prepare_v2(db, yubisql_update_state, sizeof(yubisql_update_state), &ppStmt, NULL);
-  if (response != SQLITE_OK) {
-    sqlite3_finalize(ppStmt);
-    return OTP_SQL_ERR;
-  }
+  compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_int(ppStmt, 1, otp->session_counter);
-  if (response != SQLITE_OK) {
-    sqlite3_finalize(ppStmt);
-    return OTP_SQL_ERR;
-  }
+  compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_int(ppStmt, 2, (int)otp->timecode);
-  if (response != SQLITE_OK) {
-    sqlite3_finalize(ppStmt);
-    return OTP_SQL_ERR;
-  }
+  compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_int(ppStmt, 3, otp->token_count);
-  if (response != SQLITE_OK) {
-    sqlite3_finalize(ppStmt);
-    return OTP_SQL_ERR;
-  }
+  compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_text(ppStmt, 4, user->name, (int)user->len, SQLITE_STATIC);
-  if (response != SQLITE_OK) {
-    sqlite3_finalize(ppStmt);
-    return OTP_SQL_ERR;
-  }
-
+  compile_or_rollback(db,ppStmt,response)
 
   /* Run and verify that it's ok */
-  response = sqlite3_step(ppStmt);
-  sqlite3_finalize(ppStmt);
-  switch (response) {
-    case SQLITE_DONE:
-      return OTP_SQL_OK;
-    case SQLITE_BUSY:
-      rollback(db);
-      return OTP_SQL_MAY_RETRY;
-    default:
-      rollback(db);
-      return OTP_SQL_ERR;
-  }
+  return try_or_rollback(db, ppStmt);
 }
 
 void
