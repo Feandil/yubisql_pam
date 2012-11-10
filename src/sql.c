@@ -5,7 +5,7 @@
 #include "sql.h"
 
 /* Define queries */
-static const char yubisql_select_data[] = "SELECT publicid,privateid,key FROM mapping WHERE username = \"%.*s\";\n";
+static const char yubisql_select_data[] = "SELECT publicid,privateid,key,digest FROM mapping WHERE username = \"%.*s\";\n";
 static const char yubisql_select_state[] = "SELECT session,timecode,tokencount FROM mapping WHERE username = \"%.*s\";\n";
 static const char yubisql_update_state[] = "UPDATE mapping SET session = %hu, timecode = %u, tokencount = %hhu WHERE username = \"%.*s\";\n";
 
@@ -93,10 +93,11 @@ get_otp_data (sqlite3* db, const struct user* user)
   /* Run it and verify the format of the response */
   response = sqlite3_step(ppStmt);
   if ((response != SQLITE_ROW)
-      || (sqlite3_column_count(ppStmt) != 3)
+      || (sqlite3_column_count(ppStmt) != 4)
       || (sqlite3_column_type(ppStmt, 0) != SQLITE_TEXT)
       || (sqlite3_column_type(ppStmt, 1) != SQLITE_TEXT)
-      || (sqlite3_column_type(ppStmt, 2) != SQLITE_TEXT)) {
+      || (sqlite3_column_type(ppStmt, 2) != SQLITE_TEXT)
+      || (sqlite3_column_type(ppStmt, 3) != SQLITE_TEXT)) {
     sqlite3_finalize(ppStmt);
     return NULL;
   }
@@ -119,16 +120,6 @@ get_otp_data (sqlite3* db, const struct user* user)
     free(data);
     return NULL;
   }
-  /* Private ID */
-  ret = sqlite3_column_text(ppStmt,1);
-  ilen = sqlite3_column_bytes(ppStmt,1);
-  if (ilen == OTP_PRIVID_HEX_LEN) {
-    memcpy(data->privid, ret, OTP_PRIVID_HEX_LEN);
-  } else {
-    sqlite3_finalize(ppStmt);
-    free(data);
-    return NULL;
-  }
   /* AES key */
   ret = sqlite3_column_text(ppStmt,2);
   ilen = sqlite3_column_bytes(ppStmt,2);
@@ -139,6 +130,9 @@ get_otp_data (sqlite3* db, const struct user* user)
     free(data);
     return NULL;
   }
+  /* Private ID hash */
+  data->privid_hash = strdup((const char *)sqlite3_column_text(ppStmt,1));
+  data->digest_name = strdup((const char *)sqlite3_column_text(ppStmt,3));
 
   /* If there is more data, we failed */
   if (sqlite3_step(ppStmt) == SQLITE_DONE) {
@@ -307,3 +301,12 @@ try_update_credentials(sqlite3* db, const struct otp_state* otp, const struct us
       return OTP_SQL_ERR;
   }
 }
+
+void
+free_otp_data(struct otp_data *a)
+{
+  free(a->digest_name);
+  free(a->privid_hash);
+  free(a);
+}
+

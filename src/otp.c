@@ -51,7 +51,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   /* Check Pub_ID */
   if (memcmp(data->pubid, otp, OTP_PUB_ID_HEX_LEN)) {
     DBG("No corresponding Public ID")
-    free(data);
+    free_otp_data(data);
     return OTP_ERR;
   }
 
@@ -59,7 +59,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   key = aes_init(data->key);
   if (key == NULL) {
     DBG("Unable to initialize AES sub-system")
-    free(data);
+    free_otp_data(data);
     return OTP_ERR;
   }
 
@@ -67,19 +67,21 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   otp_dec = extract_otp(otp + OTP_PUB_ID_HEX_LEN, key);
   if (otp_dec == NULL) {
     DBG("Decryption error")
-    free(data);
+    free_otp_data(data);
     return OTP_ERR;
   }
 
   /* Verify Priv_id */
-  priv_id = hex2bin(data->privid, OTP_PRIVID_HEX_LEN);
-  free(data);
-  if (memcmp(priv_id, otp_dec->private_id, OTP_PRIVID_BIN_LEN)) {
+  priv_id = hex2bin(data->privid_hash, strlen(data->privid_hash));
+  ret = check_hash(data->digest_name, otp_dec->private_id, OTP_PRIVID_BIN_LEN, priv_id, strlen(data->privid_hash) / 2);
+  if (ret != 0) {
     DBG("Bad Private ID")
     free(otp_dec);
     free(priv_id);
+    free_otp_data(data);
     return OTP_ERR;
   }
+  free_otp_data(data);
   free(priv_id);
 
   /* Verify CRC16 */

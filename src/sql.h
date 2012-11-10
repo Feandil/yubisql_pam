@@ -17,9 +17,12 @@ struct otp_state {
 
 struct otp_data {
   char pubid[OTP_PUB_ID_HEX_LEN];
-  char privid[OTP_PRIVID_HEX_LEN];
   char key[OTP_KEY_HEX_LEN] ;
+  char *digest_name;
+  char *privid_hash;
 };
+
+void free_otp_data(struct otp_data *a);
 
 #define OTP_SQL_OK         0
 #define OTP_SQL_MALLOC_ERR 1
