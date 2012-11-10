@@ -5,6 +5,13 @@
 #include <string.h>
 #include "otp-const.h"
 
+struct user {
+  const char *name;
+  size_t len;
+};
+
+int verify_user(const char* username, const size_t username_len, struct user* user);
+
 uint16_t crc16 (const uint8_t * buf, size_t buf_size);
 
 int modhex2hex(char* input, const size_t len);

@@ -16,7 +16,6 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   int temp;
   int ret;
   unsigned char *priv_id;
-  size_t temp_len;
   struct user user;
   sqlite3 *db;
   AES_KEY *key;
@@ -24,16 +23,10 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
   struct otp_data* data;
   struct otp_state store;
 
-  /* Let's verify the username */
-  for (temp_len = 0; temp_len < username_len; ++temp_len) {
-    if ((*(username + temp_len) < 0x61) || (*(username + temp_len) > 0x7A)) {
-      DBG("Unauthorized char in the username")
-      return OTP_ERR;
-    }
+  if (verify_user(username, username_len, &user) != 0) {
+    DBG("Unauthorized char in the username")
+    return OTP_ERR;
   }
-
-  user.name = username;
-  user.len = username_len;
 
   db = init(sql_db);
   if (db == NULL) {

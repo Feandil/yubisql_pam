@@ -3,11 +3,7 @@
 
 #include <sqlite3.h>
 #include "otp-const.h"
-
-struct user {
-  const char *name;
-  size_t len;
-};
+#include "util.h"
 
 struct otp_state {
   unsigned short session_counter;

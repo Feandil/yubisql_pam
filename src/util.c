@@ -4,6 +4,24 @@
 #include "util.h"
 
 int
+verify_user(const char* username, const size_t username_len, struct user* user)
+{
+  size_t temp_len;
+
+  /* Let's verify the username */
+  for (temp_len = 0; temp_len < username_len; ++temp_len) {
+    if ((*(username + temp_len) < 0x61) || (*(username + temp_len) > 0x7A)) {
+      return -1;
+    }
+  }
+
+  user->name = username;
+  user->len = username_len;
+
+  return 0;
+}
+
+int
 modhex2hex(char* input, const size_t len)
 {
   size_t temp;
