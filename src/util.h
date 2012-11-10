@@ -18,5 +18,6 @@ int check_modhex(char* input, const size_t len);
 int modhex2hex(char* input, const size_t len);
 int check_hex(const char *input, const int len);
 unsigned char* hex2bin(const char* input, const size_t len);
+char* bin2hex(const char* input, const size_t len);
 
 #endif /* __YUBISQL_PAM_UTIL__ */

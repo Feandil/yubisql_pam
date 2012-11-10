@@ -155,6 +155,30 @@ hex2bin(const char* input, const size_t len)
   return res;
 }
 
+static const char hex_table[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+char*
+bin2hex(const char* input, const size_t len)
+{
+  char *res, *out;
+  size_t pos;
+
+  res = calloc((len * 2) + 1, 1);
+  if (res == NULL) {
+    return res;
+  }
+  out = res;
+
+  for (pos = 0; pos < len; ++pos) {
+    *out = hex_table[(int)(((unsigned char)(*input)) >> 4)];
+    ++out;
+    *out = hex_table[(int)((*input) & 0x0f)];
+    ++out;
+    ++input;
+  }
+  return res;
+}
+
 uint16_t
 crc16 (const uint8_t * data, size_t size)
 {
