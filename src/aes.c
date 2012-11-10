@@ -52,6 +52,37 @@ struct otp* extract_otp(char* obfuscated_encrypted_otp, AES_KEY *key)
   return (struct otp*) otp;
 }
 
+unsigned char*
+compute_hash(const char* digest_name, const char* input, size_t input_len)
+{
+  const EVP_MD *md;
+  EVP_MD_CTX *mdctx;
+  unsigned char *md_value;
+  size_t md_len;
+
+  OpenSSL_add_all_digests();
+  md = EVP_get_digestbyname(digest_name);
+
+  if (md == NULL) {
+    printf("Unsuporter digest '%s'\n", digest_name);
+    return NULL;
+  }
+  md_value = calloc(sizeof(char), EVP_MAX_MD_SIZE);
+  if (md_value == NULL) {
+    printf("Malloc error\n");
+    return NULL;
+  }
+
+  mdctx = EVP_MD_CTX_create();
+  EVP_DigestInit_ex(mdctx, md, NULL);
+  EVP_DigestUpdate(mdctx, input, input_len);
+  EVP_DigestFinal_ex(mdctx, md_value, &md_len);
+  EVP_MD_CTX_destroy(mdctx);
+  EVP_cleanup();
+
+  return md_value;
+}
+
 char
 check_hash(const char* digest_name, const char* input, size_t input_len, const char* hash, size_t hash_len)
 {
