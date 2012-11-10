@@ -1,0 +1,17 @@
+#ifndef __YUBISQL_PAM_OTP_CONST__
+#define __YUBISQL_PAM_OTP_CONST__
+
+#define OTP_PUB_ID_HEX_LEN 12
+
+#define OTP_PRIVID_BIN_LEN 6
+#define OTP_PRIVID_HEX_LEN 12
+
+#define OTP_KEY_BIN_LEN 128
+#define OTP_KEY_HEX_LEN 32
+
+#define OTP_BIN_LEN 16
+#define OTP_MESSAGE_HEX (OTP_KEY_HEX_LEN + OTP_PUB_ID_HEX_LEN)
+
+#define OTP_CRC 0xf0b8
+
+#endif /* __YUBISQL_PAM_OTP_CONST__ */
