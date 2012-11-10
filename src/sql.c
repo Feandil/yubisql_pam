@@ -342,8 +342,12 @@ list_users (sqlite3* db)
 void
 free_otp_data(struct otp_data *a)
 {
-  free(a->digest_name);
-  free(a->privid_hash);
+  if (a->digest_name != NULL) {
+    free(a->digest_name);
+  }
+  if (a->privid_hash != NULL) {
+    free(a->privid_hash);
+  }
   free(a);
 }
 
