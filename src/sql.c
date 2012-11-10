@@ -9,6 +9,10 @@ static const char yubisql_select_data[] = "SELECT publicid,privateid,key,digest 
 static const char yubisql_select_state[] = "SELECT session,timecode,tokencount FROM mapping WHERE username = ?;";
 static const char yubisql_update_state[] = "UPDATE mapping SET session = ?, timecode = ?, tokencount = ? WHERE username = ?;";
 
+static const char yubisql_create_credentials[] = "INSERT INTO mapping (username, publicid, privateid, key, digest) VALUES (?, ?, ?, ?, ?);";
+static const char yubisql_delete_credentials[] = "DELETE FROM mapping WHERE username = ?;";
+static const char yubisql_list_users[]   = "SELECT username FROM mapping;";
+
 /* Transactions */
 static const char yubisql_begin[] = "BEGIN IMMEDIATE;";
 static const char yubisql_end[] = "COMMIT;";
@@ -266,6 +270,73 @@ try_update_credentials(sqlite3* db, const struct otp_state* otp, const struct us
 
   /* Run and verify that it's ok */
   return try_or_rollback(db, ppStmt);
+}
+
+int
+try_create_credentials(sqlite3* db, struct otp_data* data, const struct user* user)
+{
+  int response;
+  sqlite3_stmt *ppStmt = NULL;
+
+  /* Prepare the request ! */
+  response = sqlite3_prepare_v2(db, yubisql_create_credentials, sizeof(yubisql_create_credentials), &ppStmt, NULL);
+  compile_or_rollback(db,ppStmt,response)
+  response = sqlite3_bind_text(ppStmt, 1, user->name, (int)user->len, SQLITE_STATIC);
+  compile_or_rollback(db,ppStmt,response)
+  response = sqlite3_bind_text(ppStmt, 1, data->pubid, OTP_PUB_ID_HEX_LEN, SQLITE_STATIC);
+  compile_or_rollback(db,ppStmt,response)
+  response = sqlite3_bind_text(ppStmt, 1, data->privid_hash, -1, SQLITE_STATIC);
+  compile_or_rollback(db,ppStmt,response)
+  response = sqlite3_bind_text(ppStmt, 1, data->key, OTP_KEY_HEX_LEN, SQLITE_STATIC);
+  compile_or_rollback(db,ppStmt,response)
+  response = sqlite3_bind_text(ppStmt, 1, data->privid_hash, -1, SQLITE_STATIC);
+  compile_or_rollback(db,ppStmt,response)
+
+  return try_or_rollback(db, ppStmt);
+}
+
+int
+try_delete_credentials(sqlite3* db, const struct user* user)
+{
+  int response;
+  sqlite3_stmt *ppStmt = NULL;
+
+  response = sqlite3_prepare_v2(db, yubisql_delete_credentials, sizeof(yubisql_delete_credentials), &ppStmt, NULL);
+  compile_or_rollback(db,ppStmt,response)
+  response = sqlite3_bind_text(ppStmt, 1, user->name, (int)user->len, SQLITE_STATIC);
+  compile_or_rollback(db,ppStmt,response)
+
+  return try_or_rollback(db, ppStmt);
+}
+
+void
+list_users (sqlite3* db)
+{
+  int response;
+  sqlite3_stmt *ppStmt = NULL;
+
+  /* Prepare the request ! */
+  response = sqlite3_prepare_v2(db, yubisql_list_users, sizeof(yubisql_list_users), &ppStmt, NULL);
+  if (response != SQLITE_OK) {
+    sqlite3_finalize(ppStmt);
+    printf("Unable to search\n");
+    return;
+  }
+
+  /* Extract all the responses */
+  while ((response = sqlite3_step(ppStmt)) == SQLITE_ROW) {
+    if ((sqlite3_column_count(ppStmt) != 1)
+         || (sqlite3_column_type(ppStmt, 0) != SQLITE_TEXT)) {
+       printf("Error while searching for users: database error\n");
+    } else {
+      printf("%s\n",sqlite3_column_text(ppStmt, 0));
+    }
+  }
+
+  if (response == SQLITE_DONE) {
+    return;
+  }
+  printf("Error while searching for users: SQL error\n");
 }
 
 void

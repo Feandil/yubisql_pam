@@ -42,4 +42,8 @@ int try_end_transaction(sqlite3* db);
 int try_get_credentials(sqlite3* db, struct otp_state* store, const struct user* user);
 int try_update_credentials(sqlite3* db, const struct otp_state* otp, const struct user* user);
 
+int try_create_credentials(sqlite3* db, struct otp_data* data, const struct user* user);
+int try_delete_credentials(sqlite3* db, const struct user* user);
+void list_users(sqlite3* db);
+
 #endif /* __YUBISQL_PAM_SQL__ */
