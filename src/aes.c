@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "aes.h"
+#include "util.h"
 
 AES_KEY *aes_init(const char* priv_key)
 {

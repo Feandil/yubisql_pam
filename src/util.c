@@ -3,13 +3,15 @@
 
 #include "util.h"
 
-int modhex2hex(char* input, const size_t len)
+int
+modhex2hex(char* input, const size_t len)
 {
   size_t temp;
   for (temp = 0; temp < len; ++temp) {
     if (*input > 0x61) {
       if (*input < 0x6C) {
-        *input -= 0x32;
+        /* *input > 0x61 thus it *input - 0x32 > 0 */
+        *input = (char) (*input - 0x32);
         if (*input < 0x32) {
           *input ^= 0x01;
         }
@@ -17,7 +19,8 @@ int modhex2hex(char* input, const size_t len)
         if (*input > 0x77) {
           return -1;
         }
-        *input -= 0x10;
+        /* *input > 0x77 thus it *input - 0x10 > 0 */
+        *input = (char) (*input - 0x10);
       } else {
         switch (*input) {
           case 'l':
@@ -42,7 +45,8 @@ int modhex2hex(char* input, const size_t len)
 }
 
 /* No checks here, need to have some real hex in input */
-unsigned char* hex2bin(const char* input, const size_t len)
+unsigned char*
+hex2bin(const char* input, const size_t len)
 {
   unsigned char tmp;
   unsigned char *res, *out;
@@ -55,19 +59,44 @@ unsigned char* hex2bin(const char* input, const size_t len)
   out = res;
 
   for (pos = 0; pos < len; ++pos) {
+    /* 'Hex' characters are:
+     *  0-9: 0x30-0x3A
+     *  a-z: 0x61-0x66
+     */
     if (*input < 0x3A) {
-      tmp = *input - 0x30;
+      tmp = (unsigned char) (*input - 0x30);
     } else {
-      tmp = *input - 0x57;
+      tmp = (unsigned char) (*input - 0x57);
     }
     if (pos % 2) {
       *out |= tmp;
       ++out;
     } else {
-      *out = tmp << 4;
+      /* We cannot overflow here as tmp is supposed to be <= 0xf */
+      *out = (unsigned char) (tmp << 4);
     }
     ++input;
   }
   return res;
+}
+
+uint16_t
+crc16 (const uint8_t * data, size_t size)
+{
+  uint16_t crc = 0xffff;
+  uint8_t i;
+
+  while (size--) {
+    crc = (uint16_t) (crc ^ *data++);
+    for (i = 0; i < 8; i++) {
+      if (crc & 1) {
+        crc = (crc >> 1) ^ 0x8408;
+      } else {
+        crc = (crc >> 1);
+      }
+    }
+  }
+
+  return crc;
 }
 

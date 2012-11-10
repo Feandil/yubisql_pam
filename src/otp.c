@@ -1,21 +1,21 @@
 #include "otp.h"
-#include "otp-const.h"
+#include "util.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 #define MAX_RETRIES 3
 
-#ifdef DBG
-#undef DBG
+#ifndef DBG
+#define DBG(x) printf("%s\n", x);
 #endif
-#define DBG(x)  if (debug) D(x);
 
-int check_otp(const char* sql_db, const char *username, const size_t username_len, char* otp, char debug)
+int
+check_otp(const char* sql_db, const char *username, const size_t username_len, char* otp, char debug)
 {
   int temp;
   int ret;
-  char *priv_id;
+  unsigned char *priv_id;
   size_t temp_len;
   struct user user;
   sqlite3 *db;
@@ -27,7 +27,7 @@ int check_otp(const char* sql_db, const char *username, const size_t username_le
   /* Let's verify the username */
   for (temp_len = 0; temp_len < username_len; ++temp_len) {
     if ((*(username + temp_len) < 0x61) || (*(username + temp_len) > 0x7A)) {
-      DBG(("Unauthorized char in the username"))
+      DBG("Unauthorized char in the username")
       return OTP_ERR;
     }
   }
@@ -37,39 +37,41 @@ int check_otp(const char* sql_db, const char *username, const size_t username_le
 
   db = init(sql_db);
   if (db == NULL) {
-    DBG(("Error in the database initiation"))
+    DBG("Error in the database initiation")
     return OTP_ERR;
   }
 
   /* This should probably be in a loop (locks) */
   data = get_otp_data(db, &user);
   if (data == NULL) {
-    DBG(("The user didn't match"))
+    DBG("The user didn't match")
     return OTP_ERR;
   }
 
   /* Check Pub_ID */
   if (memcmp(data->pubid, otp, OTP_PUB_ID_HEX_LEN)) {
+    DBG("No corresponding Public ID")
     return OTP_ERR;
   }
 
   /* Init AES */
   key = aes_init(data->key);
   if (key == NULL) {
+    DBG("Unable to initialize AES sub-system")
     return OTP_ERR;
   }
 
   /* Decrypt OTP */
   otp_dec = extract_otp(otp + OTP_PUB_ID_HEX_LEN, key);
   if (otp_dec == NULL) {
-    DBG(("Decryption error"))
+    DBG("Decryption error")
     return OTP_ERR;
   }
 
   /* Verify Priv_id */
   priv_id = hex2bin(data->privid, OTP_PRIVID_HEX_LEN);
   if (memcmp(priv_id, otp_dec->private_id, OTP_PRIVID_BIN_LEN)) {
-    DBG(("Bad Private ID"))
+    DBG("Bad Private ID")
     free(priv_id);
     return OTP_ERR;
   }
@@ -77,7 +79,7 @@ int check_otp(const char* sql_db, const char *username, const size_t username_le
 
   /* Verify CRC16 */
   if(crc16((uint8_t*) otp_dec, OTP_BIN_LEN) != OTP_CRC) {
-    DBG(("Bad CRC"))
+    DBG("Bad CRC")
     return OTP_ERR;
   }
 
@@ -93,7 +95,7 @@ int check_otp(const char* sql_db, const char *username, const size_t username_le
             || ((store.session_counter == otp_dec->session_counter)
               && (store.timecode < (((unsigned int)otp_dec->timecode_high) << 16) + ((unsigned int)otp_dec->timecode_low)))) {
           store.session_counter = otp_dec->session_counter;
-          store.timecode = (otp_dec->timecode_high << 16) + otp_dec->timecode_low;
+          store.timecode = (unsigned int) (otp_dec->timecode_high << 16) + otp_dec->timecode_low;
           /* Store new OTP state */
           ret = try_update_credentials(db, &store, &user);
           if (ret == OTP_SQL_OK) {
@@ -101,13 +103,13 @@ int check_otp(const char* sql_db, const char *username, const size_t username_le
             sql_close(db);
             return OTP_OK;
           } else if (ret == OTP_SQL_ERR) {
-            DBG(("SQL error"))
+            DBG("SQL error")
             aes_clean(key);
             sql_close(db);
             return OTP_ERR;
           }
         } else {
-          DBG(("OTP replayed "))
+          DBG("OTP replayed ")
           rollback(db);
           aes_clean(key);
           sql_close(db);
@@ -115,7 +117,7 @@ int check_otp(const char* sql_db, const char *username, const size_t username_le
         }
         break;
       case OTP_SQL_ERR:
-        DBG(("SQL error"))
+        DBG("SQL error")
         aes_clean(key);
         sql_close(db);
         return OTP_ERR;

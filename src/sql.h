@@ -22,8 +22,9 @@ struct otp_data {
 };
 
 #define OTP_SQL_OK         0
-#define OTP_SQL_ERR        1
-#define OTP_SQL_MAY_RETRY  2
+#define OTP_SQL_MALLOC_ERR 1
+#define OTP_SQL_ERR        2
+#define OTP_SQL_MAY_RETRY  3
 
 sqlite3* init(const char* dbname);
 void sql_close(sqlite3* db);

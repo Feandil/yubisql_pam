@@ -3,7 +3,7 @@
 
 #include "aes.h"
 #include "sql.h"
-#include "util.h"
+#include "otp-const.h"
 
 #define OTP_OK  0
 #define OTP_ERR 1
