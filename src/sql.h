@@ -34,13 +34,12 @@ void sql_close(sqlite3* db);
 
 struct otp_data* get_otp_data (sqlite3* db, const struct user* user);
 
-/* ! Start transaction ! */
-int try_get_credentials(sqlite3* db, struct otp_state* store, const struct user* user);
-
-/* Abort transaction */
+int try_start_transaction(sqlite3* db);
 void rollback(sqlite3* db);
+int try_end_transaction(sqlite3* db);
 
-/* End transaction */
+/* Those functions SHOULD be used only inside transactions */
+int try_get_credentials(sqlite3* db, struct otp_state* store, const struct user* user);
 int try_update_credentials(sqlite3* db, const struct otp_state* otp, const struct user* user);
 
 #endif /* __YUBISQL_PAM_SQL__ */
