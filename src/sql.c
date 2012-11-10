@@ -283,13 +283,13 @@ try_create_credentials(sqlite3* db, struct otp_data* data, const struct user* us
   compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_text(ppStmt, 1, user->name, (int)user->len, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
-  response = sqlite3_bind_text(ppStmt, 1, data->pubid, OTP_PUB_ID_HEX_LEN, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 2, data->pubid, OTP_PUB_ID_HEX_LEN, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
-  response = sqlite3_bind_text(ppStmt, 1, data->privid_hash, -1, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 3, data->privid_hash, -1, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
-  response = sqlite3_bind_text(ppStmt, 1, data->key, OTP_KEY_HEX_LEN, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 4, data->key, OTP_KEY_HEX_LEN, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
-  response = sqlite3_bind_text(ppStmt, 1, data->privid_hash, -1, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 5, data->digest_name, -1, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
 
   return try_or_rollback(db, ppStmt);
