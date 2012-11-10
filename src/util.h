@@ -14,7 +14,9 @@ int verify_user(const char* username, const size_t username_len, struct user* us
 
 uint16_t crc16 (const uint8_t * buf, size_t buf_size);
 
+int check_modhex(char* input, const size_t len);
 int modhex2hex(char* input, const size_t len);
+int check_hex(const char *input, const int len);
 unsigned char* hex2bin(const char* input, const size_t len);
 
 #endif /* __YUBISQL_PAM_UTIL__ */

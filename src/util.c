@@ -22,6 +22,39 @@ verify_user(const char* username, const size_t username_len, struct user* user)
 }
 
 int
+check_modhex(char* input, const size_t len)
+{
+  size_t temp;
+  for (temp = 0; temp < len; ++temp) {
+    if (*input > 0x61) {
+      if (*input < 0x6C) {
+        continue;
+      } else if (*input > 0x73) {
+        if (*input > 0x77) {
+          return -1;
+        }
+        continue;
+      } else {
+        switch (*input) {
+          case 'l':
+            continue;
+          case 'n':
+            continue;
+          case 'r':
+            continue;
+          default:
+            return -1;
+         }
+      }
+    } else {
+      return -1;
+    }
+    ++input;
+  }
+  return 0;
+}
+
+int
 modhex2hex(char* input, const size_t len)
 {
   size_t temp;
@@ -58,6 +91,30 @@ modhex2hex(char* input, const size_t len)
       return -1;
     }
     ++input;
+  }
+  return 0;
+}
+
+int
+check_hex(const char *input, const int len)
+{
+  const char *end;
+  for (end = input + len; input < end; ++input) {
+    if (*input <= 0x3A) {
+      if (*input < 0x30) {
+        return -1;
+      } else {
+        continue;
+      }
+    }
+    if (*input <= 0x66) {
+      if (*input < 0x61) {
+        return -1;
+      } else {
+        continue;
+      }
+    }
+    return -1;
   }
   return 0;
 }
