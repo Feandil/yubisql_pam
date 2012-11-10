@@ -72,5 +72,15 @@ main(int argc, char *argv[])
   if(argc > optind) {
     usage(1);
   }
+  if (sql_db == NULL) {
+    usage(2);
+  }
+  if (username == NULL) {
+    usage(3);
+  }
+  if (otp == NULL) {
+    usage(4);
+  }
+
   return check_otp(sql_db, username, strlen(username), otp, verbose);
 }
