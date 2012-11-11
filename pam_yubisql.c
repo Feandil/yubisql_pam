@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <syslog.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #ifndef PIC
 # define PAM_STATIC
@@ -28,9 +31,9 @@ pam_sm_setcred (pam_handle_t * pamh, int flags, int argc, const char **argv)
   return PAM_SUCCESS;
 }
 
-#define PRINTF(...)       \
-  if (verbose) {          \
-    printf(__VA_ARGS__);  \
+#define PRINTF(...)                          \
+  if (verbose) {                             \
+    syslog(LOG_AUTH|LOG_DEBUG, __VA_ARGS__);  \
   }
 
 #define IF_NOT_RET(...)     \
@@ -59,6 +62,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   size_t input_len;
   const char* otp;
   char* password;
+  pid_t child;
 
   /* Extract the options */
   for (i = 0; i < argc; i++) {
@@ -164,20 +168,37 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   otp = input + (input_len - OTP_MESSAGE_HEX);
 
   /* Invoque helper */
-  if (verbose) {
-    const char * const helper_argv[] = {slave_exec, "-s", sql_db, "-u", user, "-o", otp, NULL};
-    ret = execv(slave_exec, (char *const*) helper_argv);
-  } else {
-    const char * const helper_argv[] = {slave_exec, "-v", "-s", sql_db, "-u", user, "-o", otp, NULL};
-    ret = execv(slave_exec, (char *const*) helper_argv);
-  }
-  if (ret == -1) {
+  child = fork();
+  if (child == 0) {
+    if (!verbose) {
+      const char * const helper_argv[] = {slave_exec, "-s", sql_db, "-u", user, "-o", otp, NULL};
+      PRINTF("Invoquing helper: %s %s %s %s %s %s <OTP>\n", helper_argv[0], helper_argv[1], helper_argv[2], helper_argv[3], helper_argv[4], helper_argv[5], helper_argv[6])
+      ret = execv(slave_exec, (char *const*) helper_argv);
+    } else {
+      const char * const helper_argv[] = {slave_exec, "-v", "-s", sql_db, "-u", user, "-o", otp, NULL};
+      PRINTF("Invoquing helper: %s %s %s %s %s %s %s <OTP>\n", helper_argv[0], helper_argv[1], helper_argv[2], helper_argv[3], helper_argv[4], helper_argv[5], helper_argv[6], helper_argv[7])
+      ret = execv(slave_exec, (char *const*) helper_argv);
+    }
     PRINTF("Execv error, file not found ?\n")
     return PAM_AUTH_ERR;
   }
-  IF_NOT_RET("Bad OTP")
 
-  return PAM_SUCCESS;
+  if (waitpid(child, &ret, 0) < 0 ) {
+    PRINTF("Error while waiting for helper\n")
+    return PAM_AUTH_ERR;
+  }
+  if (WIFSIGNALED(ret)) {
+    PRINTF("Child killed: signal %d%s\n", WTERMSIG(ret), WCOREDUMP(ret) ? " - core dumped" : "");
+    return PAM_AUTH_ERR;
+  }
+  if(WIFEXITED(ret)) {
+    ret = WEXITSTATUS(ret);
+    IF_NOT_RET("Bad OTP\n");
+    PRINTF("Success\n")
+    return PAM_SUCCESS;
+  }
+  PRINTF("Child error\n")
+  return PAM_AUTH_ERR;
 }
 
 #ifdef PAM_STATIC
