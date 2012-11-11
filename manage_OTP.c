@@ -99,6 +99,7 @@ main(int argc, char *argv[])
   enum manage_action action = MANAGE_ACTION_HELP;
   int opt;
   char privid[OTP_PRIVID_HEX_LEN];
+  unsigned char *privid_bin;
   int temp, ret;
   struct otp_data* data;
   char digest_name[DIGEST_NAME_MAX_SIZE];
@@ -273,6 +274,11 @@ main(int argc, char *argv[])
         printf("Non hex character in input, please retry\n");
         goto free_data;
       }
+      privid_bin = hex2bin(privid, OTP_PRIVID_HEX_LEN);
+      if (privid_bin == NULL) {
+        printf("Hex error: please contact us\n");
+        goto free_data;
+      }
 
       printf("Please Specify a valid digest algorithm [%s]\n", DEFAULT_DIGEST);
       memset(digest_name, 0, DIGEST_NAME_MAX_SIZE);
@@ -294,7 +300,7 @@ main(int argc, char *argv[])
         }
         data->digest_name = digest_name;
       }
-      ctemp = (char*)compute_hash(data->digest_name, privid, OTP_PRIVID_HEX_LEN);
+      ctemp = (char*)compute_hash(data->digest_name, (char*)privid_bin, OTP_PRIVID_BIN_LEN);
       if (ctemp == NULL) {
         goto free_data;
       }
