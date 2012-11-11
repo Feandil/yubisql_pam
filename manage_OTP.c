@@ -69,7 +69,7 @@ enum manage_action {
 };
 
 static int
-read_input_word(char *buf, size_t len, char* name)
+read_input_word(char *buf, int len, const char* name)
 {
   char *temp;
   printf("Please enter the %s\n", name);
@@ -81,7 +81,7 @@ read_input_word(char *buf, size_t len, char* name)
     printf("%s too short (%c(%i)), please retry\n", name, buf[len - 1], buf[len - 1]);
     return -1;
   }
-  buf[len - 1] = getc(stdin);
+  buf[len - 1] = (char) getc(stdin);
   if (getc(stdin) != '\n') {
     printf("%s too long, please retry\n", name);
     return -1;

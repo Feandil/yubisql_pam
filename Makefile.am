@@ -1,6 +1,31 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS=foreign
-AM_CFLAGS = -Wall -Wextra -Werror
+AM_CFLAGS = -Wall -Wextra -Werror \
+        -Wbad-function-cast \
+        -Wcast-qual \
+        -Wcast-align \
+        -Wconversion \
+        -Wformat-nonliteral \
+        -Wformat-security \
+        -Winit-self \
+        -Wlogical-op \
+        -Wmissing-declarations \
+        -Wmissing-include-dirs \
+        -Wmissing-format-attribute \
+        -Wmissing-prototypes \
+        -Wnested-externs \
+        -Wpointer-arith \
+        -Wredundant-decls \
+        -Wshadow \
+        -Wstrict-prototypes \
+        -Wwrite-strings \
+        -Wundef \
+        -Wunused \
+        -Wno-unused-parameter \
+        -Wno-format-zero-length \
+        -Wno-format-y2k \
+        -Wunsafe-loop-optimizations
+
 AM_LDFLAGS = -no-install
 
 libdir = $(PAMDIR)
