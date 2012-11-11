@@ -46,7 +46,6 @@ usage(int err)
     printf("        Exit code specifies the result: 0 = OK, !0 = ERROR\n");
     printf("Options:\n");
     printf(" -h, --help                 Print this ...\n");
-    printf(" -v, --verbose              Print errors occurring when parsing the input\n");
     printf("Modules:\n");
     printf(" -l                         List the registered users\n");
     printf(" -g <username>              Get the credentials for the <username>\n");
