@@ -48,6 +48,7 @@ usage(int err)
     printf(" -h, --help                 Print this ...\n");
     printf("Modules:\n");
     printf(" -l                         List the registered users\n");
+    printf(" -c                         Create a new database\n");
     printf(" -g <username>              Get the credentials for the <username>\n");
     printf(" -a <username> [-ipkd]      Create new credentials for <username>:\n");
     printf("                              Interactively askes for the information\n");
@@ -61,6 +62,7 @@ usage(int err)
 enum manage_action {
   MANAGE_ACTION_HELP,
   MANAGE_ACTION_LIST,
+  MANAGE_ACTION_CREATE,
   MANAGE_ACTION_GET,
   MANAGE_ACTION_ADD,
   MANAGE_ACTION_DELETE
@@ -102,7 +104,7 @@ main(int argc, char *argv[])
   char digest_name[DIGEST_NAME_MAX_SIZE];
   char *ctemp;
 
-  while((opt = getopt(argc, argv, "hs:lg:r:a:")) != -1) {
+  while((opt = getopt(argc, argv, "hs:lg:r:a:c")) != -1) {
     switch(opt) {
       case 'h':
         usage(0);
@@ -137,6 +139,12 @@ main(int argc, char *argv[])
         action = MANAGE_ACTION_ADD;
         username = optarg;
         break;
+      case 'c':
+        if (action != MANAGE_ACTION_HELP) {
+          usage(1);
+        }
+        action = MANAGE_ACTION_CREATE;
+        break;
       default:
         usage(0);
      }
@@ -158,10 +166,22 @@ main(int argc, char *argv[])
     printf("Unable to open the database\n");
     return 1;
   }
-  if (action == MANAGE_ACTION_LIST) {
-    list_users(db);
-    sql_close(db);
-    return 0;
+  switch(action) {
+    case MANAGE_ACTION_HELP:
+       /* Already done */
+      break;
+    case MANAGE_ACTION_LIST:
+      list_users(db);
+      sql_close(db);
+      return 0;
+    case MANAGE_ACTION_CREATE:
+      create_database(db);
+      return 0;
+    case MANAGE_ACTION_GET:
+    case MANAGE_ACTION_ADD:
+    case MANAGE_ACTION_DELETE:
+      /* Later */
+      break;
   }
   if (username == NULL) {
     usage(3);
@@ -174,6 +194,7 @@ main(int argc, char *argv[])
   switch(action) {
     case MANAGE_ACTION_HELP:
     case MANAGE_ACTION_LIST:
+    case MANAGE_ACTION_CREATE:
       /* Already done */
       break;
     case MANAGE_ACTION_GET:

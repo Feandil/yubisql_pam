@@ -13,6 +13,18 @@ static const char yubisql_create_credentials[] = "INSERT INTO mapping (username,
 static const char yubisql_delete_credentials[] = "DELETE FROM mapping WHERE username = ?;";
 static const char yubisql_list_users[]   = "SELECT username FROM mapping;";
 
+static const char yubisql_create_table[] = \
+  "CREATE TABLE mapping(             \
+      username TEXT PRIMARY KEY,     \
+      publicid TEXT NOT NULL,        \
+      key TEXT NOT NULL,             \
+      privateid TEXT NOT NULL,       \
+      session INTEGER DEFAULT 0,     \
+      timecode INTEGER DEFAULT 0,    \
+      tokencount INTEGER DEFAULT 0,  \
+      digest TEXT NOT NULL           \
+   );";
+
 /* Transactions */
 static const char yubisql_begin[] = "BEGIN IMMEDIATE;";
 static const char yubisql_end[] = "COMMIT;";
@@ -337,6 +349,33 @@ list_users (sqlite3* db)
     return;
   }
   printf("Error while searching for users: SQL error\n");
+}
+
+void
+create_database(sqlite3* db)
+{
+  int response;
+  sqlite3_stmt *ppStmt = NULL;
+
+  /* Prepare the request ! */
+  response = sqlite3_prepare_v2(db, yubisql_create_table, sizeof(yubisql_create_table), &ppStmt, NULL);
+  if (response != SQLITE_OK) {
+    sqlite3_finalize(ppStmt);
+    printf("Unable to prepare the query that would create the table\n");
+    return;
+  }
+
+  /* Run and verify response */
+  response = sqlite3_step(ppStmt);
+  sqlite3_finalize(ppStmt);
+  switch (response) {
+    case SQLITE_DONE:
+      printf("Database successfuly created\n");
+      break;
+    default:
+      printf("Unable to create database (%i)\n", response);
+      break;
+  }
 }
 
 void

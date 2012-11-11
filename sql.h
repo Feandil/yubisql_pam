@@ -41,5 +41,6 @@ int try_update_credentials(sqlite3* db, const struct otp_state* otp, const struc
 int try_create_credentials(sqlite3* db, struct otp_data* data, const struct user* user);
 int try_delete_credentials(sqlite3* db, const struct user* user);
 void list_users(sqlite3* db);
+void create_database(sqlite3* db);
 
 #endif /* __YUBISQL_PAM_SQL__ */
