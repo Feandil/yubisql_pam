@@ -41,8 +41,8 @@ usage(int err)
         break;
     }
   } else {
-    printf("check_OTP: Check the output of a yubikey against a local database\n\n");
-    printf("Usage: ./check_OTP [-hv] -s <database> [-lagd] [sub-obtions]\n");
+    printf("manage_OTP: User interface to the database storing the yubikey informations\n\n");
+    printf("Usage: ./manage_OTP [-hv] -s <database> [-lcagr] [sub-obtions]\n");
     printf("        Exit code specifies the result: 0 = OK, !0 = ERROR\n");
     printf("Options:\n");
     printf(" -h, --help                 Print this ...\n");
@@ -50,7 +50,7 @@ usage(int err)
     printf(" -l                         List the registered users\n");
     printf(" -c                         Create a new database\n");
     printf(" -g <username>              Get the credentials for the <username>\n");
-    printf(" -a <username> [-ipkd]      Create new credentials for <username>:\n");
+    printf(" -a <username>              Create new credentials for <username>:\n");
     printf("                              Interactively askes for the information\n");
     printf(" -r <username>              Delete the credentials for <username>:\n");
 
