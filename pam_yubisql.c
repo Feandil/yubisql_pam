@@ -137,7 +137,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
     /* Success ? */
     IF_NOT_RET("Conversation failure: unable to get password (%i:%s)\n", ret, pam_strerror(pamh, ret));
     if ((response == NULL) || (response->resp == NULL)) {
-      PRINTF("Conversation failure: NULL response (%p)!\n, response")
+      PRINTF("Conversation failure: NULL response (%p)!\n", response)
       return PAM_AUTH_ERR;
     }
 

@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS=foreign
-AM_CFLAGS = -Wall -Werror
+AM_CFLAGS = -Wall -Wextra -Werror
 AM_LDFLAGS = -no-install
 
 libdir = $(PAMDIR)
