@@ -70,8 +70,12 @@ enum manage_action {
 static int
 read_input_word(char *buf, size_t len, char* name)
 {
+  char *temp;
   printf("Please enter the %s\n", name);
-  fgets(buf, len, stdin);
+  temp = fgets(buf, len, stdin);
+  if (temp == NULL) {
+    printf("Unable to read input\n");
+  }
   if (buf[len - 1] != 0) {
     printf("%s too short (%c(%i)), please retry\n", name, buf[len - 1], buf[len - 1]);
     return -1;
@@ -97,7 +101,7 @@ main(int argc, char *argv[])
   int temp, ret;
   struct otp_data* data;
   char digest_name[DIGEST_NAME_MAX_SIZE];
-  char *pos;
+  char *ctemp;
 
   while((opt = getopt(argc, argv, "hs:lg:r:a:")) != -1) {
     switch(opt) {
@@ -169,6 +173,10 @@ main(int argc, char *argv[])
   }
 
   switch(action) {
+    case MANAGE_ACTION_HELP:
+    case MANAGE_ACTION_LIST:
+      /* Already done */
+      break;
     case MANAGE_ACTION_GET:
       data = get_otp_data(db, &user);
       if (data == NULL) {
@@ -248,7 +256,11 @@ main(int argc, char *argv[])
 
       printf("Please Specify a valid digest algorithm [%s]\n", DEFAULT_DIGEST);
       memset(digest_name, 0, DIGEST_NAME_MAX_SIZE);
-      fgets(digest_name, DIGEST_NAME_MAX_SIZE, stdin);
+      ctemp = fgets(digest_name, DIGEST_NAME_MAX_SIZE, stdin);
+      if (ctemp == NULL) {
+        printf("Unable to read input\n");
+        goto free_data;
+      }
       if (digest_name[DIGEST_NAME_MAX_SIZE - 1] != 0 && digest_name[DIGEST_NAME_MAX_SIZE - 1] != '\n') {
         printf("Digest algorithm name too long, please retry\n");
         goto free_data;
@@ -256,17 +268,17 @@ main(int argc, char *argv[])
       if (digest_name[0] == '\n') {
         data->digest_name = strdup(DEFAULT_DIGEST);
       } else {
-        pos = memchr(digest_name, '\n', DIGEST_NAME_MAX_SIZE);
-        if (pos != NULL) {
-          *pos = '\0';
+        ctemp = memchr(digest_name, '\n', DIGEST_NAME_MAX_SIZE);
+        if (ctemp != NULL) {
+          *ctemp = '\0';
         }
         data->digest_name = digest_name;
       }
-      pos = compute_hash(data->digest_name, privid, OTP_PRIVID_HEX_LEN);
-      if (pos == NULL) {
+      ctemp = (char*)compute_hash(data->digest_name, privid, OTP_PRIVID_HEX_LEN);
+      if (ctemp == NULL) {
         goto free_data;
       }
-      data->privid_hash = bin2hex(pos, strlen(pos));
+      data->privid_hash = bin2hex(ctemp, strlen(ctemp));
       if (data->privid_hash == NULL) {
         goto free_data;
       }

@@ -67,7 +67,7 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
 
   /* Verify Priv_id */
   priv_id = hex2bin(data->privid_hash, strlen(data->privid_hash));
-  ret = check_hash(data->digest_name, otp_dec->private_id, OTP_PRIVID_BIN_LEN, priv_id, strlen(data->privid_hash) / 2);
+  ret = check_hash(data->digest_name, (const char*)otp_dec->private_id, OTP_PRIVID_BIN_LEN, (const char*)priv_id, strlen(data->privid_hash) / 2);
   free(priv_id);
   free_otp_data(data);
   if (ret != 0) {
