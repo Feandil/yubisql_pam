@@ -86,9 +86,9 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   }
 
   /* If we didn't warned about some unknown options but we are verbose, do it now */
-  if (verbose && unknown_options) {
-    printf("%i options were lost during the option processing\n", unknown_options);
-    printf("Last of them: %s\n", last_unknown_option);
+  if (unknown_options) {
+    PRINTF("%i options were lost during the option processing\n", unknown_options);
+    PRINTF("Last of them: %s\n", last_unknown_option);
   }
 
   if (sql_db == NULL) {
@@ -113,7 +113,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
     struct pam_conv *conv;
     struct pam_message message;
     const struct pam_message *message_p;
-    struct pam_response *response;
+    struct pam_response *response = NULL;
 
     /* Get pam_conv */
     ret = pam_get_item(pamh, PAM_CONV, (const void**) &conv);
@@ -123,7 +123,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
     char *message_content = calloc(1, 15 + user_len);
     snprintf(message_content, 15 + user_len, "Yubikey for %s: ", user);
     message.msg = message_content;
-    message.msg_style = PAM_PROMPT_ECHO_ON;
+    message.msg_style = PAM_PROMPT_ECHO_OFF;
 
     /* Put the enveloppe */
     message_p = &message;
@@ -135,9 +135,9 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
     free(message_content);
 
     /* Success ? */
-    IF_NOT_RET("Conversation failure: unable to get password (%i)\n", ret);
+    IF_NOT_RET("Conversation failure: unable to get password (%i:%s)\n", ret, pam_strerror(pamh, ret));
     if ((response == NULL) || (response->resp == NULL)) {
-      PRINTF("Conversation failure: NULL response !\n")
+      PRINTF("Conversation failure: NULL response (%p)!\n, response")
       return PAM_AUTH_ERR;
     }
 
