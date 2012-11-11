@@ -16,7 +16,7 @@ AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdint.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([stdint.h stdlib.h string.h syslog.h unistd.h])
 AC_CHECK_HEADERS([security/pam_appl.h] [security/pam_modules.h], [],
   [AC_MSG_ERROR([[PAM header files not found, install libpam-dev.]])])
 AC_CHECK_HEADERS([openssl/aes.h openssl/evp.h], [],
@@ -25,11 +25,13 @@ AC_CHECK_HEADERS([sqlite3.h], [],
   [AC_MSG_ERROR([[Sqlite3 header files not found, install sqlite-dev.]])])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
+AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memchr memset strdup])
 
