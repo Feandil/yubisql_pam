@@ -89,7 +89,7 @@ check_hash(const char* digest_name, const char* input, size_t input_len, const c
   const EVP_MD *md;
   EVP_MD_CTX *mdctx;
   unsigned char md_value[EVP_MAX_MD_SIZE];
-  size_t md_len;
+  unsigned int md_len;
 
   OpenSSL_add_all_digests();
   md = EVP_get_digestbyname(digest_name);
