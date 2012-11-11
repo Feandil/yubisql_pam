@@ -204,7 +204,7 @@ main(int argc, char *argv[])
         printf("No such user\n");
         break;
       }
-      printf("User '%.*s':\n", user.len, user.name);
+      printf("User '%.*s':\n", (unsigned int) user.len, user.name);
       printf("Public ID  : %.*s\n", OTP_PUB_ID_HEX_LEN, data->pubid);
       printf("Private Key: %.*s\n", OTP_KEY_HEX_LEN, data->key);
       printf("Private ID digest: %s\n", data->digest_name);
@@ -309,7 +309,7 @@ main(int argc, char *argv[])
         goto free_data;
       }
       printf("New user :\n");
-      printf("Name: '%.*s':\n", user.len, user.name);
+      printf("Name: '%.*s':\n", (unsigned int) user.len, user.name);
       printf("Public ID  : %.*s\n", OTP_PUB_ID_HEX_LEN, data->pubid);
       printf("Private Key: %.*s\n", OTP_KEY_HEX_LEN, data->key);
       printf("Private ID:        %.*s\n", OTP_PRIVID_HEX_LEN, privid);
