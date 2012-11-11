@@ -1,5 +1,6 @@
 #define PAM_SM_AUTH
 
+#include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -179,7 +180,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
       PRINTF("Invoquing helper: %s %s %s %s %s %s %s <OTP>\n", helper_argv[0], helper_argv[1], helper_argv[2], helper_argv[3], helper_argv[4], helper_argv[5], helper_argv[6], helper_argv[7])
       ret = execv(slave_exec, (char *const*) helper_argv);
     }
-    PRINTF("Execv error, file not found ?\n")
+    PRINTF("Execv error, file not found : %i (%s)\n", errno, strerror(errno))
     return PAM_AUTH_ERR;
   }
 
