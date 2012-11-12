@@ -12,7 +12,7 @@ AES_KEY *aes_init(const char* priv_key)
   unsigned char *bin_priv_key = hex2bin(priv_key, OTP_KEY_HEX_LEN);
 
   /* Init key */
-  AES_KEY *key = (AES_KEY*) malloc(sizeof(AES_KEY));
+  AES_KEY *key = calloc(sizeof(AES_KEY), 1);
   if (key == NULL) {
     return NULL;
   }
@@ -38,7 +38,7 @@ struct otp* extract_otp(char* obfuscated_encrypted_otp, AES_KEY *key)
   unsigned char *bin_encrypted_otp = hex2bin(obfuscated_encrypted_otp, OTP_KEY_HEX_LEN);;
 
   /* Allocate output buffer */
-  unsigned char *otp = malloc(OTP_KEY_BIN_LEN);
+  unsigned char *otp = calloc(sizeof(char), OTP_KEY_BIN_LEN);
   if (otp == NULL) {
     return NULL;
   }

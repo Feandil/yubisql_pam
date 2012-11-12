@@ -127,7 +127,7 @@ hex2bin(const char* input, const size_t len)
   unsigned char *res, *out;
   size_t pos;
 
-  res = malloc(len/2);
+  res = calloc(sizeof(char), len/2);
   if (res == NULL) {
     return res;
   }

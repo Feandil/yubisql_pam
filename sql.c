@@ -178,7 +178,7 @@ get_otp_data (sqlite3* db, const struct user* user)
   }
 
   /* Allocate the result struct */
-  data = malloc(sizeof(struct otp_data));
+  data = calloc(sizeof(struct otp_data), 1);
   if (data == NULL) {
     sqlite3_finalize(ppStmt);
     return NULL;
