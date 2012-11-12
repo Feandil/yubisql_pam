@@ -68,7 +68,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   const char *slave_exec = "/usr/bin/check_OTP";
   const char *sql_db = NULL;
   int unknown_options = 0;
-  const char* last_unknown_option;
+  const char* last_unknown_option = NULL;
 
   /* State */
   int i, ret;
@@ -102,7 +102,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   }
 
   /* If we didn't warned about some unknown options but we are verbose, do it now */
-  if (unknown_options) {
+  if (unknown_options && (last_unknown_option != NULL)) {
     PRINTF("%i options were lost during the option processing\n", unknown_options);
     PRINTF("Last of them: %s\n", last_unknown_option);
   }
