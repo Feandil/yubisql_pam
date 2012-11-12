@@ -159,7 +159,7 @@ get_otp_data (sqlite3* db, const struct user* user)
     sqlite3_finalize(ppStmt);
     return NULL;
   }
-  response = sqlite3_bind_text(ppStmt, 1, user->name, (int)user->len, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 1, user->name, user->len, SQLITE_STATIC);
   if (response != SQLITE_OK) {
     sqlite3_finalize(ppStmt);
     return NULL;
@@ -229,7 +229,7 @@ try_get_credentials(sqlite3* db, struct otp_state* store, const struct user* use
   /* Prepare the request ! */
   response = sqlite3_prepare_v2(db, yubisql_select_state, sizeof(yubisql_select_state), &ppStmt, NULL);
   compile_or_rollback(db,ppStmt,response)
-  response = sqlite3_bind_text(ppStmt, 1, user->name, (int)user->len, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 1, user->name, user->len, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
 
   /* Run and verify response */
@@ -277,7 +277,7 @@ try_update_credentials(sqlite3* db, const struct otp_state* otp, const struct us
   compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_int(ppStmt, 3, otp->token_count);
   compile_or_rollback(db,ppStmt,response)
-  response = sqlite3_bind_text(ppStmt, 4, user->name, (int)user->len, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 4, user->name, user->len, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
 
   /* Run and verify that it's ok */
@@ -293,7 +293,7 @@ try_create_credentials(sqlite3* db, struct otp_data* data, const struct user* us
   /* Prepare the request ! */
   response = sqlite3_prepare_v2(db, yubisql_create_credentials, sizeof(yubisql_create_credentials), &ppStmt, NULL);
   compile_or_rollback(db,ppStmt,response)
-  response = sqlite3_bind_text(ppStmt, 1, user->name, (int)user->len, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 1, user->name, user->len, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_text(ppStmt, 2, data->pubid, OTP_PUB_ID_HEX_LEN, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
@@ -315,7 +315,7 @@ try_delete_credentials(sqlite3* db, const struct user* user)
 
   response = sqlite3_prepare_v2(db, yubisql_delete_credentials, sizeof(yubisql_delete_credentials), &ppStmt, NULL);
   compile_or_rollback(db,ppStmt,response)
-  response = sqlite3_bind_text(ppStmt, 1, user->name, (int)user->len, SQLITE_STATIC);
+  response = sqlite3_bind_text(ppStmt, 1, user->name, user->len, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
 
   return try_or_rollback(db, ppStmt);

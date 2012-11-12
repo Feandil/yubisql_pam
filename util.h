@@ -7,7 +7,7 @@
 
 struct user {
   const char *name;
-  size_t len;
+  int len;
 };
 
 int verify_user(const char* username, const size_t username_len, struct user* user);

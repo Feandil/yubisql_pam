@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "util.h"
 
@@ -15,8 +16,12 @@ verify_user(const char* username, const size_t username_len, struct user* user)
     }
   }
 
+  /* Verify for overflow */
+  if (username_len > INT_MAX) {
+    return -1;
+  }
   user->name = username;
-  user->len = username_len;
+  user->len = (int) username_len;
 
   return 0;
 }
