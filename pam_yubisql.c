@@ -183,7 +183,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   }
   if (child == 0) {
     ret = execv(slave_exec, (char *const*) helper_argv);
-    PRINTF("Execv error, file not found : %i (%s)\n", errno, strerror(errno))
+    PRINTF("Execv error: %i (%s)\n", errno, strerror(errno))
     _exit(-1);
   }
 

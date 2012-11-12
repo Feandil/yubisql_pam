@@ -281,7 +281,7 @@ main(int argc, char *argv[])
       }
       privid_bin = hex2bin(privid, OTP_PRIVID_HEX_LEN);
       if (privid_bin == NULL) {
-        printf("Hex error: please contact us\n");
+        printf("Malloc error (bis)\n");
         goto free_data;
       }
 

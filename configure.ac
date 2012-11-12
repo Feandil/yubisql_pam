@@ -36,7 +36,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_FORK
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([memchr memset strdup])
+AC_CHECK_FUNCS([memchr memset strdup strerror])
 
 PKG_CHECK_MODULES([OPENSSL], [openssl])
 PKG_CHECK_MODULES([SQLITE], [sqlite3])

@@ -9,6 +9,7 @@ config/config.guess
 config/config.sub
 config/depcomp
 config.h
+config.h.in
 config/install-sh
 config.log
 config/ltmain.sh
