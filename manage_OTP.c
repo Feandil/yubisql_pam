@@ -56,7 +56,7 @@ usage(int err)
     printf(" -c                         Create a new database\n");
     printf(" -g <username>              Get the credentials for the <username>\n");
     printf(" -a <username>              Create new credentials for <username>:\n");
-    printf("                              Interactively askes for the information\n");
+    printf("                              Interactively asks for the information\n");
     printf(" -r <username>              Delete the credentials for <username>:\n");
 
     exit(err);
@@ -160,11 +160,12 @@ main(int argc, char *argv[])
     usage(1);
   }
 
-  if (sql_db == NULL) {
-    usage(2);
-  }
   if (action == MANAGE_ACTION_HELP) {
     usage(0);
+  }
+
+  if (sql_db == NULL) {
+    usage(2);
   }
 
   db = init(sql_db);

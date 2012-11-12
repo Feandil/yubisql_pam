@@ -10,9 +10,12 @@
 
 #define MAX_RETRIES 3
 
-#ifndef DBG
-#define DBG(x) if (debug) printf("%s\n", x);
-#endif
+
+#define DBG(x)         \
+  if (debug) {         \
+    printf("%s\n", x); \
+  }
+//"
 
 int
 check_otp(const char* sql_db, const char *username, const size_t username_len, char* otp, char debug)
@@ -131,7 +134,8 @@ check_otp(const char* sql_db, const char *username, const size_t username_len, c
                     case OTP_SQL_OK:
                       free(otp_dec);
                       sql_close(db);
-                     return OTP_OK;
+                      DBG("Success !")
+                      return OTP_OK;
                   }
               }
             } else {
