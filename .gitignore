@@ -8,6 +8,7 @@ config/compile
 config/config.guess
 config/config.sub
 config/depcomp
+config.h
 config/install-sh
 config.log
 config/ltmain.sh

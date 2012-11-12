@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+    #include "config.h"
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
@@ -41,7 +45,8 @@ usage(int err)
         break;
     }
   } else {
-    printf("manage_OTP: User interface to the database storing the yubikey informations\n\n");
+    printf("manage_OTP: User interface to the database storing the yubikey informations\n");
+    printf("   (Package: %s. Bug report to %s)\n\n", PACKAGE_STRING, PACKAGE_BUGREPORT);
     printf("Usage: ./manage_OTP [-hv] -s <database> [-lcagr] [sub-obtions]\n");
     printf("        Exit code specifies the result: 0 = OK, !0 = ERROR\n");
     printf("Options:\n");

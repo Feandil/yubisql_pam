@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+    #include "config.h"
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
@@ -28,7 +32,8 @@ usage(int err)
         break;
     }
   } else {
-    printf("check_OTP: Check the output of a yubikey against a local database\n\n");
+    printf("check_OTP: Check the output of a yubikey against a local database\n");
+    printf("   (Package: %s. Bug report to %s)\n\n", PACKAGE_STRING, PACKAGE_BUGREPORT);
     printf("Usage: ./check_OTP [-hv] -s <database> -u <user> -o <OTP>\n");
     printf("        Exit code specifies the result: 0 = OK, !0 = ERROR\n");
     printf("Options:\n");
