@@ -47,6 +47,17 @@ pam_sm_setcred (pam_handle_t * pamh, int flags, int argc, const char **argv)
     return PAM_AUTH_ERR;    \
   }
 
+static int
+vfork_vrap(const char *child_exec, const char * const * argv, char verbose)
+{
+  int child = vfork();
+  if (child == 0) {
+    execv(child_exec, (char *const*) argv);
+    PRINTF("Execv error: %i (%s)\n", errno, strerror(errno))
+    _exit(-1);
+  }
+  return child;
+}
 
 PAM_EXTERN int
 pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
@@ -176,15 +187,11 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   const char * const helper_argv[] = {slave_exec,  "-s", sql_db, "-u", user, "-o", otp, NULL};
 
   /* Invoque helper */
-  child = vfork();
-  if (child < 0) {
+  child = vfork_vrap(slave_exec, helper_argv, verbose);
+
+  if (child <= 0) {
     PRINTF("Fork error\n");
     return PAM_AUTH_ERR;
-  }
-  if (child == 0) {
-    ret = execv(slave_exec, (char *const*) helper_argv);
-    PRINTF("Execv error: %i (%s)\n", errno, strerror(errno))
-    _exit(-1);
   }
 
   if (waitpid(child, &ret, 0) < 0 ) {
