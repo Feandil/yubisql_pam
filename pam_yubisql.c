@@ -172,20 +172,19 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   }
   otp = input + (input_len - OTP_MESSAGE_HEX);
 
+  /* Create helper argv */
+  const char * const helper_argv[] = {slave_exec,  "-s", sql_db, "-u", user, "-o", otp, NULL};
+
   /* Invoque helper */
-  child = fork();
-  if (child == 0) {
-    if (!verbose) {
-      const char * const helper_argv[] = {slave_exec, "-s", sql_db, "-u", user, "-o", otp, NULL};
-      PRINTF("Invoquing helper: %s %s %s %s %s %s <OTP>\n", helper_argv[0], helper_argv[1], helper_argv[2], helper_argv[3], helper_argv[4], helper_argv[5], helper_argv[6])
-      ret = execv(slave_exec, (char *const*) helper_argv);
-    } else {
-      const char * const helper_argv[] = {slave_exec, "-v", "-s", sql_db, "-u", user, "-o", otp, NULL};
-      PRINTF("Invoquing helper: %s %s %s %s %s %s %s <OTP>\n", helper_argv[0], helper_argv[1], helper_argv[2], helper_argv[3], helper_argv[4], helper_argv[5], helper_argv[6], helper_argv[7])
-      ret = execv(slave_exec, (char *const*) helper_argv);
-    }
-    PRINTF("Execv error, file not found : %i (%s)\n", errno, strerror(errno))
+  child = vfork();
+  if (child < 0) {
+    PRINTF("Fork error\n");
     return PAM_AUTH_ERR;
+  }
+  if (child == 0) {
+    ret = execv(slave_exec, (char *const*) helper_argv);
+    PRINTF("Execv error, file not found : %i (%s)\n", errno, strerror(errno))
+    _exit(-1);
   }
 
   if (waitpid(child, &ret, 0) < 0 ) {
