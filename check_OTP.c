@@ -34,11 +34,12 @@ usage(int err)
   } else {
     printf("check_OTP: Check the output of a yubikey against a local database\n");
     printf("   (Package: %s. Bug report to %s)\n\n", PACKAGE_STRING, PACKAGE_BUGREPORT);
-    printf("Usage: ./check_OTP [-hv] -s <database> -u <user> -o <OTP>\n");
+    printf("Usage: ./check_OTP [-hvl] -s <database> -u <user> -o <OTP>\n");
     printf("        Exit code specifies the result: 0 = OK, !0 = ERROR\n");
     printf("Options:\n");
     printf(" -h, --help                 Print this ...\n");
-    printf(" -v, --verbose              Print errors occurring when parsing the input\n");
+    printf(" -v                         Print errors occurring when parsing the input\n");
+    printf(" -l                         Use syslog to log errors (Only useful when -v is set)\n");
     exit(err);
   }
   exit(-1);
@@ -49,18 +50,22 @@ int
 main(int argc, char *argv[])
 {
   char verbose = 0;
+  char syslog = 0;
   char *sql_db = NULL;
   char *username = NULL;
   char *otp = NULL;
   int opt;
 
-  while((opt = getopt(argc, argv, "hvs:u:o:")) != -1) {
+  while((opt = getopt(argc, argv, "hvls:u:o:")) != -1) {
     switch(opt) {
       case 'h':
         usage(0);
         break;
       case 'v':
         ++verbose;
+        break;
+      case 'l':
+        ++syslog;
         break;
       case 's':
         sql_db = optarg;
@@ -87,5 +92,5 @@ main(int argc, char *argv[])
     usage(4);
   }
 
-  return check_otp(sql_db, username, strlen(username), otp, verbose);
+  return check_otp(sql_db, username, strlen(username), otp, verbose, syslog);
 }

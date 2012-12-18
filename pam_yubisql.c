@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <syslog.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -29,6 +28,7 @@
 #endif /* PAM_EXTERN */
 
 #include "otp.h"
+#include "debug.h"
 
 PAM_EXTERN int
 pam_sm_setcred (pam_handle_t * pamh, int flags, int argc, const char **argv)
@@ -36,14 +36,12 @@ pam_sm_setcred (pam_handle_t * pamh, int flags, int argc, const char **argv)
   return PAM_SUCCESS;
 }
 
-#define PRINTF(...)                                          \
-  if (verbose) {                                             \
-    syslog(LOG_AUTH|LOG_DEBUG, "pam_yubisql: " __VA_ARGS__);  \
-  }
+#define PAM_PRINTF(...)                 \
+  SYSTEM_PRINTF(verbose,  __VA_ARGS__)
 
 #define IF_NOT_RET(...)     \
   if (ret != PAM_SUCCESS) { \
-    PRINTF(__VA_ARGS__);    \
+    PAM_PRINTF(__VA_ARGS__) \
     return PAM_AUTH_ERR;    \
   }
 
@@ -53,7 +51,7 @@ vfork_vrap(const char *child_exec, const char * const * argv, char verbose)
   int child = vfork();
   if (child == 0) {
     execv(child_exec, (char *const*) argv);
-    PRINTF("Execv error: %i (%s)\n", errno, strerror(errno))
+    PAM_PRINTF("Execv error: %i (%s)\n", errno, strerror(errno))
     _exit(-1);
   }
   return child;
@@ -92,7 +90,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
       try_first_pass = 1;
     } else {
       /* If already verbose, print any unknown option */
-      PRINTF("Unknown option: '%s'\n", argv[i])
+      PAM_PRINTF("Unknown option: '%s'\n", argv[i])
       else {
         /* At least count the unknown options */
         ++unknown_options;
@@ -103,12 +101,12 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
 
   /* If we didn't warned about some unknown options but we are verbose, do it now */
   if (unknown_options && (last_unknown_option != NULL)) {
-    PRINTF("%i options were lost during the option processing\n", unknown_options);
-    PRINTF("Last of them: %s\n", last_unknown_option);
+    PAM_PRINTF("%i options were lost during the option processing\n", unknown_options);
+    PAM_PRINTF("Last of them: %s\n", last_unknown_option);
   }
 
   if (sql_db == NULL) {
-    PRINTF("No database, abort\n")
+    PAM_PRINTF("No database, abort\n")
     return PAM_AUTH_ERR;
   }
 
@@ -121,7 +119,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   if (try_first_pass) {
     ret = pam_get_item(pamh, PAM_AUTHTOK, (const void **) &input);
     IF_NOT_RET("pam_get_user failed with return %i\n", ret)
-    PRINTF("pam_get_user succeded\n")
+    PAM_PRINTF("pam_get_user succeded\n")
   }
 
   /* If we still have not input, we need to find it */
@@ -153,7 +151,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
     /* Success ? */
     IF_NOT_RET("Conversation failure: unable to get password (%i:%s)\n", ret, pam_strerror(pamh, ret));
     if ((response == NULL) || (response->resp == NULL)) {
-      PRINTF("Conversation failure: NULL response (%p)!\n", response)
+      PAM_PRINTF("Conversation failure: NULL response (%p)!\n", response)
       return PAM_AUTH_ERR;
     }
 
@@ -165,14 +163,14 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   input_len = strlen(input);
   /* Big enough ? */
   if (strlen(input) < OTP_MESSAGE_HEX) {
-    PRINTF("Input too short to be useful\n")
+    PAM_PRINTF("Input too short to be useful\n")
     return PAM_AUTH_ERR;
   }
   if (strlen(input) > OTP_MESSAGE_HEX) {
     /* Extract password */
     password = calloc(1, input_len + 1 - OTP_MESSAGE_HEX);
     if (password == NULL) {
-      PRINTF("Malloc error\n")
+      PAM_PRINTF("Malloc error\n")
       return PAM_AUTH_ERR;
     }
     strncpy(password, input, input_len - OTP_MESSAGE_HEX);
@@ -184,31 +182,34 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   otp = input + (input_len - OTP_MESSAGE_HEX);
 
   /* Create helper argv */
-  const char * const helper_argv[] = {slave_exec,  "-s", sql_db, "-u", user, "-o", otp, NULL};
+  const char * helper_argv[] = {slave_exec, "-s", sql_db, "-u", user, "-o", otp, NULL};
+  if (verbose) {
+    helper_argv[1] = "-vls";
+  }
 
   /* Invoque helper */
   child = vfork_vrap(slave_exec, helper_argv, verbose);
 
   if (child <= 0) {
-    PRINTF("Fork error\n");
+    PAM_PRINTF("Fork error\n");
     return PAM_AUTH_ERR;
   }
 
   if (waitpid(child, &ret, 0) < 0 ) {
-    PRINTF("Error while waiting for helper\n")
+    PAM_PRINTF("Error while waiting for helper\n")
     return PAM_AUTH_ERR;
   }
   if (WIFSIGNALED(ret)) {
-    PRINTF("Child killed: signal %d%s\n", WTERMSIG(ret), WCOREDUMP(ret) ? " - core dumped" : "");
+    PAM_PRINTF("Child killed: signal %d%s\n", WTERMSIG(ret), WCOREDUMP(ret) ? " - core dumped" : "");
     return PAM_AUTH_ERR;
   }
   if(WIFEXITED(ret)) {
     ret = WEXITSTATUS(ret);
     IF_NOT_RET("Bad OTP\n");
-    PRINTF("Success\n")
+    PAM_PRINTF("Success\n")
     return PAM_SUCCESS;
   }
-  PRINTF("Child error\n")
+  PAM_PRINTF("Child error\n")
   return PAM_AUTH_ERR;
 }
 

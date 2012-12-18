@@ -2,23 +2,20 @@
     #include "config.h"
 #endif
 
+#include "debug.h"
 #include "otp.h"
 #include "util.h"
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #define MAX_RETRIES 3
 
 
-#define DBG(x)         \
-  if (debug) {         \
-    printf("%s\n", x); \
-  }
-//"
+#define DBG(x)                       \
+  PRINTF(debug, authlog, "%s\n", x);
 
 int
-check_otp(const char* sql_db, const char *username, const size_t username_len, char* otp, char debug)
+check_otp(const char* sql_db, const char *username, const size_t username_len, char* otp, char debug, char authlog)
 {
   int temp;
   int ret;
