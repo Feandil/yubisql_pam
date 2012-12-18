@@ -36,9 +36,9 @@ pam_sm_setcred (pam_handle_t * pamh, int flags, int argc, const char **argv)
   return PAM_SUCCESS;
 }
 
-#define PRINTF(...)                          \
-  if (verbose) {                             \
-    syslog(LOG_AUTH|LOG_DEBUG, __VA_ARGS__);  \
+#define PRINTF(...)                                          \
+  if (verbose) {                                             \
+    syslog(LOG_AUTH|LOG_DEBUG, "pam_yubisql: " __VA_ARGS__);  \
   }
 
 #define IF_NOT_RET(...)     \
