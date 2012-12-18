@@ -2,6 +2,7 @@
 #define __YUBISQL_PAM_AES__
 
 #include <openssl/aes.h>
+#include <stddef.h>
 #include "otp-const.h"
 
 AES_KEY *aes_init(const char* priv_key);
