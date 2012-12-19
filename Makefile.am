@@ -42,6 +42,7 @@ check_OTP_SOURCES = check_OTP.c
 check_OTP_LDADD = libyubisql.la
 
 manage_OTP_SOURCES = manage_OTP.c
+manage_OTP_CFLAGS = @OPENSSL_CFLAGS@ @SQLITE_CFLAGS@ $(AM_CFLAGS)
 manage_OTP_LDADD = libyubisql.la
 
 lib_LTLIBRARIES = pam_yubisql.la
