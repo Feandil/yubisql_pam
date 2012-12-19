@@ -46,7 +46,7 @@ pam_sm_setcred (pam_handle_t * pamh, int flags, int argc, const char **argv)
   }
 
 static int
-vfork_vrap(const char *child_exec, const char * const * argv, char verbose)
+vfork_vrap(const char *child_exec, const char * const * argv, int verbose)
 {
   int child = vfork();
   if (child == 0) {

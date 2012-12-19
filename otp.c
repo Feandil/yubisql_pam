@@ -15,7 +15,7 @@
   PRINTF(debug, authlog, "%s\n", x);
 
 int
-check_otp(const char* sql_db, const char *username, const size_t username_len, char* otp, char debug, char authlog)
+check_otp(const char* sql_db, const char *username, const size_t username_len, char* otp, int debug, int authlog)
 {
   int temp;
   int ret;
