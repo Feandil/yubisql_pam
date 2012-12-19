@@ -27,8 +27,8 @@
 # endif /* PAM_STATIC */
 #endif /* PAM_EXTERN */
 
-#include "otp.h"
 #include "debug.h"
+#include "otp-const.h"
 
 PAM_EXTERN int
 pam_sm_setcred (pam_handle_t * pamh, int flags, int argc, const char **argv)
