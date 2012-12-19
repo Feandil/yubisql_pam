@@ -214,7 +214,9 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
 }
 
 #ifdef PAM_STATIC
-
+# ifdef OPENPAM
+PAM_MODULE_ENTRY("pam_yubisql")
+# else /* OPENPAM */
 struct pam_module _pam_yubico_modstruct = {
   "pam_yubisql",
   pam_sm_authenticate,
@@ -224,6 +226,6 @@ struct pam_module _pam_yubico_modstruct = {
   NULL,
   NULL
 };
-
+# endif /* OPENPAM */
 #endif /* PAM_STATIC */
 
