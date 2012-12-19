@@ -16,11 +16,11 @@ AES_KEY *aes_init(const char* priv_key)
   unsigned char *bin_priv_key = hex2bin(priv_key, OTP_KEY_HEX_LEN);
 
   /* Init key */
-  AES_KEY *key = calloc(sizeof(AES_KEY), 1);
+  AES_KEY *key = calloc(1ul, sizeof(AES_KEY));
   if (key == NULL) {
     return NULL;
   }
-  AES_set_decrypt_key(bin_priv_key, OTP_KEY_BIN_LEN, key);
+  AES_set_decrypt_key(bin_priv_key, (int) OTP_KEY_BIN_LEN, key);
 
   /* Clean cache */
   free(bin_priv_key);
@@ -71,7 +71,7 @@ compute_hash(const char* digest_name, const char* input, size_t input_len)
     printf("Unsuporter digest '%s'\n", digest_name);
     return NULL;
   }
-  md_value = calloc(sizeof(char), EVP_MAX_MD_SIZE);
+  md_value = calloc(sizeof(char), (size_t) EVP_MAX_MD_SIZE);
   if (md_value == NULL) {
     printf("Malloc error\n");
     return NULL;

@@ -117,7 +117,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
 
   /* If try_first_pass is set, let's try to optain it */
   if (try_first_pass) {
-    ret = pam_get_item(pamh, PAM_AUTHTOK, (const void **) &input);
+    ret = pam_get_item(pamh, PAM_AUTHTOK, (void *) &input);
     IF_NOT_RET("pam_get_user failed with return %i\n", ret)
     PAM_PRINTF("pam_get_user succeded\n")
   }
@@ -130,11 +130,11 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
     struct pam_response *response = NULL;
 
     /* Get pam_conv */
-    ret = pam_get_item(pamh, PAM_CONV, (const void**) &conv);
+    ret = pam_get_item(pamh, PAM_CONV, (void*) &conv);
     IF_NOT_RET("pam_get_item(PAM_CONV) failed with return %i\n", ret)
 
     /* Construct message */
-    char *message_content = calloc(1, 15ul + user_len);
+    char *message_content = calloc(1ul, 15ul + user_len);
     snprintf(message_content, 15ul + user_len, "Yubikey for %s: ", user);
     message.msg = message_content;
     message.msg_style = PAM_PROMPT_ECHO_OFF;
@@ -168,7 +168,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   }
   if (strlen(input) > OTP_MESSAGE_HEX) {
     /* Extract password */
-    password = calloc(1, input_len + 1ul - OTP_MESSAGE_HEX);
+    password = calloc(1ul, input_len + 1ul - OTP_MESSAGE_HEX);
     if (password == NULL) {
       PAM_PRINTF("Malloc error\n")
       return PAM_AUTH_ERR;

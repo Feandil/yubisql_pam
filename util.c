@@ -172,7 +172,7 @@ bin2hex(const char* input, const size_t len)
   char *res, *out;
   size_t pos;
 
-  res = calloc((len * 2) + 1, 1);
+  res = calloc((len * 2) + 1, 1ul);
   if (res == NULL) {
     return res;
   }

@@ -74,11 +74,11 @@ enum manage_action {
 };
 
 static int
-read_input_word(char *buf, int len, const char* name)
+read_input_word(char *buf, size_t len, const char* name)
 {
   char *temp;
   printf("Please enter the %s\n", name);
-  temp = fgets(buf, len, stdin);
+  temp = fgets(buf, (int) len, stdin);
   if (temp == NULL) {
     printf("Unable to read input\n");
   }
@@ -252,7 +252,7 @@ main(int argc, char *argv[])
       printf("Unable to remove user (Database busy)\n");
       break;
     case MANAGE_ACTION_ADD:
-      data = calloc(sizeof(struct otp_data), 1);
+      data = calloc(sizeof(struct otp_data), 1ul);
       if (data == NULL) {
         printf("Malloc error\n");
         goto free_db;
@@ -287,7 +287,7 @@ main(int argc, char *argv[])
       }
 
       printf("Please Specify a valid digest algorithm [%s]\n", DEFAULT_DIGEST);
-      memset(digest_name, 0, DIGEST_NAME_MAX_SIZE);
+      memset(digest_name, 0, (size_t) DIGEST_NAME_MAX_SIZE);
       ctemp = fgets(digest_name, DIGEST_NAME_MAX_SIZE, stdin);
       if (ctemp == NULL) {
         printf("Unable to read input\n");
@@ -300,7 +300,7 @@ main(int argc, char *argv[])
       if (digest_name[0] == '\n') {
         data->digest_name = strdup(DEFAULT_DIGEST);
       } else {
-        ctemp = memchr(digest_name, '\n', DIGEST_NAME_MAX_SIZE);
+        ctemp = memchr(digest_name, '\n', (size_t) DIGEST_NAME_MAX_SIZE);
         if (ctemp != NULL) {
           *ctemp = '\0';
         }

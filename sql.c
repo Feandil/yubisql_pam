@@ -58,7 +58,7 @@ int try_start_transaction(sqlite3* db)
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the request */
-  response = sqlite3_prepare_v2(db, yubisql_begin, sizeof(yubisql_begin), &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_begin, (int) sizeof(yubisql_begin), &ppStmt, NULL);
   if (response != SQLITE_OK) {
     /* Should never ever happen */
     sqlite3_finalize(ppStmt);
@@ -112,7 +112,7 @@ int try_end_transaction(sqlite3* db)
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the request */
-  response = sqlite3_prepare_v2(db, yubisql_end, sizeof(yubisql_end) - 1, &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_end, (int) sizeof(yubisql_end) - 1, &ppStmt, NULL);
   compile_or_rollback(db,ppStmt,response)
 
   return try_or_rollback(db, ppStmt);
@@ -125,7 +125,7 @@ rollback_r(sqlite3* db, int rec)
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the query */
-  response = sqlite3_prepare_v2(db, yubisql_rollback, sizeof(yubisql_rollback) - 1, &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_rollback, (int) sizeof(yubisql_rollback) - 1, &ppStmt, NULL);
   if (response != SQLITE_OK) {
     /* Should never ever happen */
     sqlite3_finalize(ppStmt);
@@ -158,7 +158,7 @@ get_otp_data (sqlite3* db, const struct user* user)
   struct otp_data *data;
 
   /* Prepare the request ! */
-  response = sqlite3_prepare_v2(db, yubisql_select_data, sizeof(yubisql_select_data), &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_select_data, (int) sizeof(yubisql_select_data), &ppStmt, NULL);
   if (response != SQLITE_OK) {
     sqlite3_finalize(ppStmt);
     return NULL;
@@ -182,7 +182,7 @@ get_otp_data (sqlite3* db, const struct user* user)
   }
 
   /* Allocate the result struct */
-  data = calloc(sizeof(struct otp_data), 1);
+  data = calloc(1ul, sizeof(struct otp_data));
   if (data == NULL) {
     sqlite3_finalize(ppStmt);
     return NULL;
@@ -231,7 +231,7 @@ try_get_credentials(sqlite3* db, struct otp_state* store, const struct user* use
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the request ! */
-  response = sqlite3_prepare_v2(db, yubisql_select_state, sizeof(yubisql_select_state), &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_select_state, (int) sizeof(yubisql_select_state), &ppStmt, NULL);
   compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_text(ppStmt, 1, user->name, user->len, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
@@ -273,7 +273,7 @@ try_update_credentials(sqlite3* db, const struct otp_state* otp, const struct us
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the request ! */
-  response = sqlite3_prepare_v2(db, yubisql_update_state, sizeof(yubisql_update_state), &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_update_state, (int) sizeof(yubisql_update_state), &ppStmt, NULL);
   compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_int(ppStmt, 1, otp->session_counter);
   compile_or_rollback(db,ppStmt,response)
@@ -295,7 +295,7 @@ try_create_credentials(sqlite3* db, struct otp_data* data, const struct user* us
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the request ! */
-  response = sqlite3_prepare_v2(db, yubisql_create_credentials, sizeof(yubisql_create_credentials), &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_create_credentials, (int) sizeof(yubisql_create_credentials), &ppStmt, NULL);
   compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_text(ppStmt, 1, user->name, user->len, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
@@ -317,7 +317,7 @@ try_delete_credentials(sqlite3* db, const struct user* user)
   int response;
   sqlite3_stmt *ppStmt = NULL;
 
-  response = sqlite3_prepare_v2(db, yubisql_delete_credentials, sizeof(yubisql_delete_credentials), &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_delete_credentials, (int) sizeof(yubisql_delete_credentials), &ppStmt, NULL);
   compile_or_rollback(db,ppStmt,response)
   response = sqlite3_bind_text(ppStmt, 1, user->name, user->len, SQLITE_STATIC);
   compile_or_rollback(db,ppStmt,response)
@@ -332,7 +332,7 @@ list_users (sqlite3* db)
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the request ! */
-  response = sqlite3_prepare_v2(db, yubisql_list_users, sizeof(yubisql_list_users), &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_list_users, (int) sizeof(yubisql_list_users), &ppStmt, NULL);
   if (response != SQLITE_OK) {
     sqlite3_finalize(ppStmt);
     printf("Unable to search\n");
@@ -362,7 +362,7 @@ create_database(sqlite3* db)
   sqlite3_stmt *ppStmt = NULL;
 
   /* Prepare the request ! */
-  response = sqlite3_prepare_v2(db, yubisql_create_table, sizeof(yubisql_create_table), &ppStmt, NULL);
+  response = sqlite3_prepare_v2(db, yubisql_create_table, (int) sizeof(yubisql_create_table), &ppStmt, NULL);
   if (response != SQLITE_OK) {
     sqlite3_finalize(ppStmt);
     printf("Unable to prepare the query that would create the table\n");
