@@ -80,9 +80,9 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
 
   /* Extract the options */
   for (i = 0; i < argc; i++) {
-    if (strncmp(argv[i], "exec=", 5) == 0) {
+    if (strncmp(argv[i], "exec=", 5ul) == 0) {
       slave_exec = (const char *) argv[i] + 5;
-    } else if (strncmp(argv[i], "sql_db=", 7) == 0) {
+    } else if (strncmp(argv[i], "sql_db=", 7ul) == 0) {
       sql_db = (const char *) argv[i] + 7;
     } else if (strcmp(argv[i], "debug") == 0) {
       verbose = 1;
@@ -134,8 +134,8 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
     IF_NOT_RET("pam_get_item(PAM_CONV) failed with return %i\n", ret)
 
     /* Construct message */
-    char *message_content = calloc(1, 15 + user_len);
-    snprintf(message_content, 15 + user_len, "Yubikey for %s: ", user);
+    char *message_content = calloc(1, 15ul + user_len);
+    snprintf(message_content, 15ul + user_len, "Yubikey for %s: ", user);
     message.msg = message_content;
     message.msg_style = PAM_PROMPT_ECHO_OFF;
 
@@ -168,7 +168,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   }
   if (strlen(input) > OTP_MESSAGE_HEX) {
     /* Extract password */
-    password = calloc(1, input_len + 1 - OTP_MESSAGE_HEX);
+    password = calloc(1, input_len + 1ul - OTP_MESSAGE_HEX);
     if (password == NULL) {
       PAM_PRINTF("Malloc error\n")
       return PAM_AUTH_ERR;

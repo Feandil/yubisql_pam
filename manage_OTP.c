@@ -211,8 +211,8 @@ main(int argc, char *argv[])
         break;
       }
       printf("User '%.*s':\n", (unsigned int) user.len, user.name);
-      printf("Public ID  : %.*s\n", OTP_PUB_ID_HEX_LEN, data->pubid);
-      printf("Private Key: %.*s\n", OTP_KEY_HEX_LEN, data->key);
+      printf("Public ID  : %.*s\n", (int) OTP_PUB_ID_HEX_LEN, data->pubid);
+      printf("Private Key: %.*s\n", (int) OTP_KEY_HEX_LEN, data->key);
       printf("Private ID digest: %s\n", data->digest_name);
       printf("Private ID hash:   %s\n", data->privid_hash);
       free(data);
@@ -316,9 +316,9 @@ main(int argc, char *argv[])
       }
       printf("New user :\n");
       printf("Name: '%.*s':\n", (unsigned int) user.len, user.name);
-      printf("Public ID  : %.*s\n", OTP_PUB_ID_HEX_LEN, data->pubid);
-      printf("Private Key: %.*s\n", OTP_KEY_HEX_LEN, data->key);
-      printf("Private ID:        %.*s\n", OTP_PRIVID_HEX_LEN, privid);
+      printf("Public ID  : %.*s\n", (int) OTP_PUB_ID_HEX_LEN, data->pubid);
+      printf("Private Key: %.*s\n", (int) OTP_KEY_HEX_LEN, data->key);
+      printf("Private ID:        %.*s\n", (int) OTP_PRIVID_HEX_LEN, privid);
       printf("Private ID digest: %s\n", data->digest_name);
       printf("Private ID hash:   %s\n", data->privid_hash);
       printf("Press enter to create this new user\n");
