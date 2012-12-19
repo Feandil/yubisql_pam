@@ -270,7 +270,7 @@ main(int argc, char *argv[])
       if (read_input_word(data->key, OTP_KEY_HEX_LEN, "AES key")) {
         goto free_data;
       }
-      if (check_hex(data->key, OTP_KEY_HEX_LEN) != 0) {
+      if (check_hex(data->key, (int) OTP_KEY_HEX_LEN) != 0) {
         printf("Non hex character in input, please retry\n");
         goto free_data;
       }
@@ -278,7 +278,7 @@ main(int argc, char *argv[])
       if (read_input_word(privid, OTP_PRIVID_HEX_LEN, "Private ID")) {
         goto free_data;
       }
-      if (check_hex(privid, OTP_PRIVID_HEX_LEN) != 0) {
+      if (check_hex(privid, (int) OTP_PRIVID_HEX_LEN) != 0) {
         printf("Non hex character in input, please retry\n");
         goto free_data;
       }
