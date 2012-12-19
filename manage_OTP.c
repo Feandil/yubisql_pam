@@ -7,7 +7,9 @@
 #include <getopt.h>
 #include <stdlib.h>
 
+#include "aes.h"
 #include "otp.h"
+#include "sql.h"
 
 #define DEFAULT_DIGEST "sha512"
 #define MAX_RETRIES 3

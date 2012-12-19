@@ -2,8 +2,10 @@
     #include "config.h"
 #endif
 
+#include "aes.h"
 #include "debug.h"
 #include "otp.h"
+#include "sql.h"
 #include "util.h"
 #include <string.h>
 #include <stdlib.h>

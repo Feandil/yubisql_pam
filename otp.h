@@ -1,8 +1,6 @@
 #ifndef __YUBISQL_PAM_OTP__
 #define __YUBISQL_PAM_OTP__
 
-#include "aes.h"
-#include "sql.h"
 #include "otp-const.h"
 
 #define OTP_OK  0
