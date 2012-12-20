@@ -25,7 +25,7 @@ AM_CFLAGS = -Wall -Wextra -Werror \
         -Wno-format-y2k \
         -Wunsafe-loop-optimizations
 
-AM_LDFLAGS = -no-install -Wl
+AM_LDFLAGS = -no-install
 
 libdir = $(PAMDIR)
 
