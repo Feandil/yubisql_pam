@@ -46,6 +46,6 @@ manage_OTP_LDADD = libyubisql.la
 
 lib_LTLIBRARIES = pam_yubisql.la
 pam_yubisql_la_SOURCES = pam_yubisql.c
-pam_yubisql_la_CFLAGS = $(AM_CFLAGS) -Wno-cast-qual
+pam_yubisql_la_CFLAGS = $(AM_CFLAGS) -Wno-cast-qual -DINSTALL_BIN_DIR='"$(bindir)"'
 pam_yubisql_la_LDFLAGS = $(AM_LDFLAGS) -module -avoid-version
 pam_yubisql_la_LIBADD = -lpam

@@ -63,7 +63,7 @@ pam_sm_authenticate (pam_handle_t *pamh, int flags, int argc, const char** argv)
   /* Configuration */
   char verbose = 0;
   char try_first_pass = 0;
-  const char *slave_exec = "/usr/bin/check_OTP";
+  const char *slave_exec = INSTALL_BIN_DIR"/check_OTP";
   const char *sql_db = NULL;
   int unknown_options = 0;
   const char* last_unknown_option = NULL;
