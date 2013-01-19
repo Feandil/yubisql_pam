@@ -1,22 +1,20 @@
-AC_PREREQ(2.67)
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
 
+AC_PREREQ(2.69)
 AC_INIT([pam_yubisql], [1.0], [git@lerya.net])
-
+AC_CONFIG_SRCDIR([check_OTP.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE([1.10 foreign -Wall -Werror])
-AC_CONFIG_HEADER([config.h])
-LT_INIT
+AM_INIT_AUTOMAKE([1.11 foreign -Wall -Werror])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
-AC_PROG_CXX
-AC_PROG_AWK
 AC_PROG_CC
-AC_PROG_CPP
-AC_PROG_INSTALL
-AC_PROG_LN_S
-AC_PROG_MAKE_SET
-AC_PROG_LIBTOOL
+AM_PROG_CC_C_O
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+
+LT_INIT
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h syslog.h unistd.h])

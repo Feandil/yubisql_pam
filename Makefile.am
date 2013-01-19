@@ -1,5 +1,4 @@
 ACLOCAL_AMFLAGS = -I m4
-AUTOMAKE_OPTIONS=foreign
 AM_CFLAGS = -Wall -Wextra -Werror \
         -Wbad-function-cast \
         -Wcast-align \
