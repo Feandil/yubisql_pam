@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.69)
+AC_PREREQ([2.67])
 AC_INIT([pam_yubisql], [1.0], [git@lerya.net])
 AC_CONFIG_SRCDIR([check_OTP.c])
 AC_CONFIG_AUX_DIR([build-aux])
