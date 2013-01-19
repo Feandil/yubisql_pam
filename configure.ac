@@ -19,7 +19,7 @@ AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
 # Checks for header files.
-AC_CHECK_HEADERS([limits.h stdint.h stdlib.h string.h syslog.h unistd.h])
+AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h syslog.h unistd.h])
 AC_CHECK_HEADERS([security/pam_appl.h] [security/pam_modules.h], [],
   [AC_MSG_ERROR([[PAM header files not found, install libpam-dev.]])])
 AC_CHECK_HEADERS([openssl/aes.h openssl/evp.h], [],
