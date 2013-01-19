@@ -2,7 +2,7 @@ AC_PREREQ(2.67)
 
 AC_INIT([pam_yubisql], [1.0], [git@lerya.net])
 
-AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.10 foreign -Wall -Werror])
 AC_CONFIG_HEADER([config.h])
