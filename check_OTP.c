@@ -2,12 +2,14 @@
     #include "config.h"
 #endif
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
 #include <stdlib.h>
 
 #include "otp.h"
+#include "util.h"
 
 static void
 usage(int err)
@@ -90,6 +92,13 @@ main(int argc, char *argv[])
   }
   if (otp == NULL) {
     usage(4);
+  }
+
+  if (forget_real_credentials() != 0) {
+    if (verbose) {
+      printf("Unable to fix uid/gid\n");
+    }
+    return -EPERM;
   }
 
   return check_otp(sql_db, username, strlen(username), otp, verbose, syslog);

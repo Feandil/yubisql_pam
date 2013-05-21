@@ -24,6 +24,7 @@ AC_CHECK_HEADERS([openssl/aes.h openssl/evp.h], [],
   [AC_MSG_ERROR([[Openssl aes header files not found, install openssl-dev.]])])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_UID_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_UINT16_T
@@ -32,7 +33,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_FORK
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([memchr memset strdup strerror])
+AC_CHECK_FUNCS([memchr memset strdup strerror setreuid setregid])
 
 case "$build_os" in
 freebsd*)

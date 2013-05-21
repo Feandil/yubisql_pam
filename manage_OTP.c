@@ -2,6 +2,7 @@
     #include "config.h"
 #endif
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
@@ -10,6 +11,7 @@
 #include "aes.h"
 #include "otp.h"
 #include "sql.h"
+#include "util.h"
 
 #define DEFAULT_DIGEST "sha512"
 #define MAX_RETRIES 3
@@ -168,6 +170,11 @@ main(int argc, char *argv[])
 
   if (sql_db == NULL) {
     usage(2);
+  }
+
+  if (forget_real_credentials() != 0) {
+    printf("Unable to fix uid/gid\n");
+    return -EPERM;
   }
 
   db = init(sql_db);

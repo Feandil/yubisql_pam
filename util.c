@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include "util.h"
 
@@ -208,3 +209,28 @@ crc16 (const uint8_t * data, size_t size)
   return crc;
 }
 
+int
+forget_real_credentials(void)
+{
+  uid_t euid;
+  gid_t egid;
+  int ret;
+
+  euid = geteuid();
+  if (euid != getuid()) {
+    ret = setreuid(euid, euid);
+    if (ret != 0) {
+      return ret;
+    }
+  }
+
+  egid = getegid();
+  if (egid != getgid()) {
+    ret = setregid(egid, egid);
+    if (ret != 0) {
+      return ret;
+    }
+  }
+
+  return 0;
+}
