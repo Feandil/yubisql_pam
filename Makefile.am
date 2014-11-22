@@ -21,8 +21,7 @@ AM_CFLAGS = -Wall -Wextra -Werror \
         -Wunused \
         -Wno-unused-parameter \
         -Wno-format-zero-length \
-        -Wno-format-y2k \
-        -Wunsafe-loop-optimizations
+        -Wno-format-y2k
 
 AM_LDFLAGS = -no-install
 
