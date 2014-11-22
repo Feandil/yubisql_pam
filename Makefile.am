@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-AM_CFLAGS = -Wall -Wextra -Werror \
+AM_CFLAGS = -Wall -Wextra \
         -Wbad-function-cast \
         -Wcast-align \
         -Wcast-qual \
